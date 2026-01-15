@@ -691,3 +691,66 @@ body[data-phase="move"] #boardWrapper {
   opacity: 0.5;
   font-style: italic;
 }
+/* 900px以下 = スマホレイアウト */
+@media (max-width: 900px) {
+  #mainLayout {
+    flex-direction: column;      /* 盤面＋右カラムを縦並びにする */
+    align-items: center;
+  }
+
+  #boardWrapper {
+    width: 95vw;                 /* 画面幅にフィットさせる */
+    max-width: 500px;
+    height: auto;
+  }
+
+  #rightColumn {
+    width: 95vw;
+    max-width: 500px;
+    margin-top: 8px;
+  }
+
+  .control-button {
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+}
+#systemButtons button {
+  margin-right: 6px;
+  padding: 6px 10px;
+  background: #222;
+  color: #ddd;
+  border: solid 1px #555;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+#systemButtons button:hover {
+  background: #444;
+}
+#fullscreenBtn {
+  width: auto;
+}
+#systemButtons {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+#bgmBtn,
+#fullscreenBtn {
+  padding: 6px 14px;
+  background: #333;
+  color: white;
+  border-radius: 6px;
+  border: 1px solid #777;
+  margin-left: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#bgmBtn:hover,
+#fullscreenBtn:hover {
+  background: #444;
+}

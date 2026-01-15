@@ -32,6 +32,34 @@
       else bgmAudio.pause();
       document.getElementById('bgmBtn').textContent = bgmEnabled ? 'BGM 停止' : 'BGM 再生';
     }
+    function toggleFullscreen(){
+      // ゲーム全体のレイアウト要素。なければ document.documentElement でもOK
+      const root = document.getElementById('mainLayout') || document.documentElement;
+
+      if (!document.fullscreenElement) {
+        // フルスクリーンに入る
+        if (root.requestFullscreen) {
+          root.requestFullscreen();
+        }
+      } else {
+        // フルスクリーン解除
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
+    function handleFullscreenChange(){
+      const btn = document.getElementById('fullscreenBtn');
+      if (!btn) return;
+
+      // フルスクリーン中かどうかでボタンの表示を変える
+      if (document.fullscreenElement) {
+        btn.textContent = '全画面解除';
+      } else {
+        btn.textContent = '全画面';
+      }
+    }
 
     let state = {
       board:[],
@@ -1784,9 +1812,16 @@ if (t.type === 'force') {
       }
     }
 
-    document.getElementById('modeCpuBtn').addEventListener('click',()=>initGame('cpu'));
+        document.getElementById('modeCpuBtn').addEventListener('click',()=>initGame('cpu'));
     document.getElementById('modePvpBtn').addEventListener('click',()=>initGame('pvp'));
     document.getElementById('bgmBtn').addEventListener('click',toggleBgm);
+
+    // ★ 追加：全画面ボタン
+    document.getElementById('fullscreenBtn').addEventListener('click',toggleFullscreen);
+
     document.getElementById('endTurnBtn').addEventListener('click',()=>endTurn());
+
+    // ★ 追加：フルスクリーン状態が変わったときにボタン表示を更新
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
 
     initGame('cpu');

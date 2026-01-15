@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>ハイヤーバトル（最新版・3カラム統合版）</title>
   <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body>
@@ -35,12 +36,18 @@
       <h1>ハイヤーバトル</h1>
 
       <div id="modeButtons">
-        <button id="modeCpuBtn" class="active">CPU戦（白vsCPU黒）</button>
-        <button id="modePvpBtn">対人戦（白vs黒）</button>
-      </div>
-      <button id="bgmBtn">BGM 再生</button>
+  <button id="modeCpuBtn" class="active">CPU戦（白vsCPU黒）</button>
+  <button id="modePvpBtn">対人戦（白vs黒）</button>
+</div>
 
-      <div id="phasePanel" class="panel"></div>
+<!-- ここを追加（BGM & 全画面のボタン用コンテナ） -->
+<div id="systemButtons">
+  <button id="bgmBtn">BGM 再生</button>
+  <button id="fullscreenBtn">全画面</button>
+</div>
+
+<div id="phasePanel" class="panel"></div>
+
 
       <div id="handsWrapper">
         <div class="handCol">
