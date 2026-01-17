@@ -1,6 +1,7 @@
     const BOARD_SIZE = 8;
     const MAX_TURNS = 60;
     const MAX_HAND = 3;
+    
 
     const PieceType = {
       KING:'king', KNIGHT:'knight', FOOTMAN:'footman', ARCHER:'archer',
