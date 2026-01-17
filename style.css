@@ -1,482 +1,756 @@
-/* ===============================
-   ベース設定
-   =============================== */
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+* { box-sizing: border-box; }
+html, body {
+  margin: 0; padding: 0; height: 100vh; overflow: hidden;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: radial-gradient(circle at top, #222 0%, #050505 60%, #000 100%);
+  color: #eee;
 }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #050710;
-  color: #f5f5ff;
+#mainLayout{
+  display:grid;
+  grid-template-columns:540px 420px 420px;
+  gap:12px;
+  padding:12px;
+  height:100%;
+  align-items:flex-start;
 }
 
-/* ===============================
-   レイアウト全体
-   =============================== */
-
-body {
-  display: flex;
-  justify-content: center;
-  align-items: stretch;
+/* ===== 左：盤面＋状態 ===== */
+#leftColumn{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  width:540px;
 }
 
-#mainLayout {
-  display: grid;
-  grid-template-columns: 360px 340px 340px; /* 左/中/右 */
-  gap: 8px;
-  padding: 8px;
-  max-width: 1100px;
-  width: 100%;
-  height: 100vh;
+#boardWrapper{
+  position: relative; /* オーバーレイ表示のため */
+  padding:6px;
+  background: radial-gradient(circle at top, #1e1e1e 0%, #090909 70%);
+  border-radius:10px;
+  box-shadow:0 18px 30px rgba(0,0,0,0.85);
+  width: fit-content;
 }
 
-/* 各カラムの基本 */
-
-#leftColumn,
-#centerColumn,
-#rightColumn {
-  background: radial-gradient(circle at top, #13162c 0, #050710 65%);
-  border-radius: 12px;
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  box-shadow: 0 0 18px rgba(0, 0, 0, 0.5);
-}
-
-/* ===============================
-   左カラム（盤面＋ステータス）
-   =============================== */
-
-#boardWrapper {
-  position: relative;
-  border-radius: 12px;
+/* 盤面上オーバーレイ：このターン使用カード */
+#boardUsedOverlay{
+  position:absolute;
+  top:10px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:5;
+  pointer-events:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:6px 10px;
+  border-radius:999px;
+  background: rgba(0,0,0,0.65);
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.55);
+  font-size: 12px;
+  min-height: 30px;
+  max-width: 520px;
+  white-space: nowrap;
   overflow: hidden;
-  background: radial-gradient(circle at top, #222844 0, #050710 70%);
-  padding: 6px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  text-overflow: ellipsis;
+}
+.overlay-empty{ opacity:0.55; }
+.overlay-white{ border-color: rgba(245,231,197,0.55); }
+.overlay-black{ border-color: rgba(159,195,255,0.55); }
+
+#board{
+  display:grid;
+  grid-template-columns:repeat(8,64px);
+  grid-template-rows:repeat(8,64px);
+  border:4px solid #bca57c;
+  border-radius:8px;
+  background:#1b1b1b;
+  transition:border-color 0.2s, box-shadow 0.2s;
+}
+#board.white-turn{ border-color:#f5e7c5; box-shadow:0 0 18px rgba(255,240,200,0.35); }
+#board.black-turn{ border-color:#7aa0ff; box-shadow:0 0 18px rgba(160,190,255,0.4); }
+
+.cell{
+  width:64px;height:64px;position:relative;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:28px;
+  transition:transform 0.08s ease-out, box-shadow 0.08s ease-out;
+}
+.dark{ background:linear-gradient(135deg,#303030,#1f1f1f); }
+.light{ background:linear-gradient(135deg,#555,#3f3f3f); }
+.cell::before{ content:""; position:absolute; inset:0; border:1px solid rgba(0,0,0,0.35); pointer-events:none; }
+.cell:hover{ transform:translateY(1px); box-shadow:inset 0 0 0 1px rgba(255,255,255,0.08); }
+
+.white-piece,.black-piece{ text-shadow:0 0 6px rgba(0,0,0,0.9); }
+.white-piece{ color:#f5e7c5; }
+.black-piece{ color:#9fc3ff; transform:rotate(180deg); }
+
+/* ✅ 魔導士❂：それぞれの陣営色に寄せる（白=暖色寄り/黒=青寄り） */
+.white-piece.mage{ color:#f3d9c9; }  /* 白駒の色味に寄せた淡い暖色 */
+.black-piece.mage{ color:#b7ccff; }  /* 黒駒の青味に寄せた明るい青 */
+
+.cell .white-piece.king, .cell .black-piece.king,
+.cell .white-piece.castle, .cell .black-piece.castle { font-size:32px; }
+
+.selected{ box-shadow:inset 0 0 0 2px rgba(255,255,180,0.7); }
+.highlight{ box-shadow:inset 0 0 0 2px rgba(120,220,160,0.8); }
+
+.terrain-block-white{ box-shadow:inset 0 0 0 2px rgba(120,190,255,0.7); }
+.terrain-block-black{ box-shadow:inset 0 0 0 2px rgba(255,170,90,0.7); }
+.stone-block{
+  box-shadow:inset 0 0 0 2px rgba(200,200,200,0.7);
+  background:linear-gradient(135deg,#777,#444);
+}
+.trap-revealed{ box-shadow:inset 0 0 0 2px rgba(185,140,255,0.85); }
+
+.aoe-preview-white{ box-shadow:inset 0 0 0 2px rgba(250,230,150,0.8); }
+.aoe-preview-black{ box-shadow:inset 0 0 0 2px rgba(150,190,250,0.8); }
+
+.last-turn-white::after,.last-turn-black::after{
+  content:"";position:absolute;inset:4px;border-radius:6px;pointer-events:none;
+}
+.last-turn-white::after{ border:2px solid rgba(255,235,150,0.85); }
+.last-turn-black::after{ border:2px solid rgba(150,195,255,0.9); }
+
+.hp-label{
+  position:absolute;bottom:4px;right:4px;
+  font-size:13px;font-weight:bold;opacity:0.98;text-shadow:0 0 3px #000;
+}
+.hp-high{ color:#7CFC00; }
+.hp-mid{ color:#FFD700; }
+.hp-low{ color:#FF4500; }
+
+.cell-symbol{
+  position:absolute;top:4px;left:4px;font-size:18px;opacity:0.9;pointer-events:none;
 }
 
-/* 盤面 */
+.buff-symbol{
+  position:absolute;top:4px;right:4px;font-size:16px;
+  pointer-events:none;text-shadow:0 0 4px #000;
+}
+.buff-symbol-left{ left:4px; right:auto; }
+.buff-symbol-shield{ color:#ffd700; }
+.buff-symbol-prayer{ color:#a0e0ff; }
 
+#bottomStatus{
+  padding:8px;background:rgba(12,12,12,0.9);
+  border-radius:8px;border:1px solid #333;
+  box-shadow:0 8px 18px rgba(0,0,0,0.8);
+  display:flex;flex-direction:column;gap:6px;
+}
+
+#effectsBar{ display:flex; gap:8px; font-size:12px; color:#ddd; }
+.effects-side{ flex:1; }
+.effects-label{ font-weight:bold;margin-bottom:2px;font-size:11px; }
+.effects-icons span{
+  margin-right:4px;padding:2px 5px;border-radius:5px;
+  background:#222;border:1px solid #444;
+  box-shadow:0 0 4px rgba(0,0,0,0.7);
+  font-size:11px;white-space:nowrap;display:inline-flex;align-items:center;gap:3px;
+}
+
+#hayerStatus{ display:flex; gap:8px; font-size:12px; }
+.hayer-side{ flex:1; }
+.hayer-title{ font-size:11px; margin-bottom:2px; }
+.hayer-pills{ display:flex; flex-wrap:wrap; gap:4px; }
+.hayer-pill{
+  padding:2px 6px;border-radius:999px;background:#222;border:1px solid #444;
+  font-size:11px;opacity:0.65;
+}
+.hayer-pill.used{ opacity:0.25; text-decoration:line-through; }
+
+/* ===== 中央：操作UI ===== */
+#centerColumn{ display:flex; flex-direction:column; gap:8px; height:100%; }
+h1{ margin:0 0 4px; font-size:24px; letter-spacing:0.06em; }
+
+#modeButtons{ display:flex; gap:8px; margin-bottom:2px; }
+#modeButtons button{
+  padding:4px 10px;border-radius:6px;border:1px solid #777;
+  background:linear-gradient(to bottom,#444,#151515);color:#eee;
+  cursor:pointer;font-size:12px; box-shadow:0 2px 4px rgba(0,0,0,0.7);
+}
+#modeButtons button.active{ background:linear-gradient(to bottom,#777,#333); border-color:#fff; }
+
+#bgmBtn{
+  align-self:flex-start;
+  padding:4px 10px;border-radius:6px;border:1px solid #777;
+  background:linear-gradient(to bottom,#444,#151515);color:#eee;
+  cursor:pointer;font-size:12px;box-shadow:0 2px 4px rgba(0,0,0,0.7);
+}
+
+.panel{
+  background:rgba(12,12,12,0.95);border-radius:8px;border:1px solid #333;
+  padding:8px 10px;font-size:13px;box-shadow:0 8px 18px rgba(0,0,0,0.7);
+}
+
+#phasePanel{ min-height:70px; }
+.phase-card{
+  padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,0.12);
+  background:radial-gradient(circle at top,#2a2520 0%,#14110f 60%,#080707 100%);
+  font-size:13px;
+}
+.phase-white{
+  background:radial-gradient(circle at top,#3d3422 0%,#15120b 60%,#050403 100%);
+  border-color:rgba(255,240,180,0.4);
+}
+.phase-black{
+  background:radial-gradient(circle at top,#1f2738 0%,#0a0c12 60%,#040509 100%);
+  border-color:rgba(160,190,255,0.45);
+}
+.phase-result .phase-main{ font-size:16px; }
+.phase-main{ font-weight:bold; margin-bottom:2px; }
+.phase-sub{ font-size:12px; color:#ddd; }
+
+#handsWrapper{ display:flex; gap:8px; }
+.handCol{ flex:1; }
+.handCol-title{ font-size:11px; margin-bottom:2px; color:#ccc; }
+
+.card{
+  border:1px solid #555;padding:6px;margin-bottom:4px;cursor:pointer;
+  background:#1f1f1f;border-radius:6px;font-size:12px;
+  box-shadow:0 4px 8px rgba(0,0,0,0.8);
+}
+.card:hover{ background:#2a2a2a; }
+.card.disabled{ opacity:0.4; cursor:default; box-shadow:none; }
+
+#endTurnBtn{
+  margin-top:4px;
+  padding:6px 10px;border-radius:8px;border:1px solid #888;
+  background:linear-gradient(to bottom,#444,#181818);
+  color:#eee;cursor:pointer;font-size:13px;
+  box-shadow:0 3px 6px rgba(0,0,0,0.8);
+}
+#endTurnBtn:disabled{ opacity:0.45; cursor:default; }
+
+/* ✅ ターン終了ボタン下：シーンイラスト */
+#sceneBox{
+  border-radius:10px;
+  border:1px solid #333;
+  background: rgba(12,12,12,0.95);
+  box-shadow:0 8px 18px rgba(0,0,0,0.7);
+  overflow:hidden;
+  height: 170px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+#sceneImage{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  filter: saturate(1.05) contrast(1.05);
+}
+
+/* ===== 右：戦況＋リプレイ＋ログ＋説明 ===== */
+#rightColumn{ display:flex; flex-direction:column; gap:8px; height:100%; }
+
+#battlePanel,#replayPanel,#logPanel{
+  background:rgba(12,12,12,0.95);
+  border-radius:8px;border:1px solid #333;
+  padding:8px 10px;font-size:13px;
+  box-shadow:0 8px 18px rgba(0,0,0,0.7);
+}
+
+#battleContent{ display:flex; gap:8px; font-size:12px; }
+.battle-side{ flex:1; }
+.battle-side-title{ font-weight:bold; margin-bottom:2px; font-size:12px; }
+
+#replayBody{ font-size:12px;color:#ddd;min-height:36px;white-space:normal; }
+
+#logPanelTitle{ font-size:13px;font-weight:bold;margin-bottom:4px; }
+
+#log{
+  font-size:11px;background:#111;border-radius:6px;padding:6px;
+  max-height:270px;overflow-y:auto;
+}
+
+/* ✅ ゲーム説明：ログの下に移動 */
+#notesUnderLog{
+  margin-top:8px;
+  padding:8px;
+  border-radius:8px;
+  border:1px solid #333;
+  background: rgba(12,12,12,0.65);
+  font-size:11px;
+  color:#aaa;
+  line-height:1.5;
+}
+/*************************************
+▼ ターンの枠グロー（自ターン強調）
+*************************************/
+@keyframes turnGlowWhite {
+  0%   { box-shadow: 0 0 8px rgba(255,240,200,0.15); }
+  100% { box-shadow: 0 0 24px rgba(255,240,200,0.55); }
+}
+
+@keyframes turnGlowBlack {
+  0%   { box-shadow: 0 0 8px rgba(160,190,255,0.18); }
+  100% { box-shadow: 0 0 24px rgba(160,190,255,0.6); }
+}
+
+/* 既存の white-turn / black-turn を拡張 */
+#board.white-turn{
+  border-color:#f5e7c5;
+  box-shadow:0 0 18px rgba(255,240,200,0.35);
+  animation:turnGlowWhite 1.4s ease-in-out infinite alternate;
+}
+
+#board.black-turn{
+  border-color:#7aa0ff;
+  box-shadow:0 0 18px rgba(160,190,255,0.4);
+  animation:turnGlowBlack 1.4s ease-in-out infinite alternate;
+}
+
+
+/*************************************
+▼ 前ターンのマスの点滅アニメ
+*************************************/
+@keyframes lastTurnBlinkWhite {
+  0%   { border-color: rgba(255,235,150,0.0); }
+  50%  { border-color: rgba(255,235,150,0.9); }
+  100% { border-color: rgba(255,235,150,0.3); }
+}
+
+@keyframes lastTurnBlinkBlack {
+  0%   { border-color: rgba(150,195,255,0.0); }
+  50%  { border-color: rgba(150,195,255,0.9); }
+  100% { border-color: rgba(150,195,255,0.3); }
+}
+
+/* last-turn 表示を強化 */
+.last-turn-white::after,
+.last-turn-black::after{
+  content:"";
+  position:absolute;
+  inset:4px;
+  border-radius:6px;
+  pointer-events:none;
+}
+
+.last-turn-white::after{
+  border:2px solid rgba(255,235,150,0.85);
+  animation:lastTurnBlinkWhite 1.2s ease-in-out infinite;
+}
+
+.last-turn-black::after{
+  border:2px solid rgba(150,195,255,0.9);
+  animation:lastTurnBlinkBlack 1.2s ease-in-out infinite;
+}
+
+
+/*************************************
+▼ ハイヤーカード使用時のポップアニメ
+*************************************/
+@keyframes overlayPop {
+  0%   { transform: translateX(-50%) translateY(-8px) scale(0.9); opacity:0; }
+  60%  { transform: translateX(-50%) translateY(0px) scale(1.03); opacity:1; }
+  100% { transform: translateX(-50%) translateY(0px) scale(1.0); opacity:1; }
+}
+
+/* overlay が empty でないときのみ適用 */
+#boardUsedOverlay.overlay-white,
+#boardUsedOverlay.overlay-black{
+  animation:overlayPop 0.35s ease-out;
+}
+
+
+/*************************************
+▼ 駒の微フェードイン（初期配置が急すぎたので緩和）
+*************************************/
+@keyframes pieceAppear {
+  0%   { transform:scale(0.8); opacity:0; }
+  60%  { transform:scale(1.05); opacity:1; }
+  100% { transform:scale(1.0); opacity:1; }
+}
+
+.piece{
+  animation:pieceAppear 0.32s cubic-bezier(.19,.74,.45,1.12);
+}
+
+
+/*************************************
+▼ ダメージ受けたときの赤フラッシュ（後ほどJSからon/off可）
+*************************************/
+@keyframes damageFlash {
+  0%   { filter:brightness(1); }
+  50%  { filter:brightness(1.7) hue-rotate(-15deg); }
+  100% { filter:brightness(1); }
+}
+
+.piece.damage-flash{
+  animation:damageFlash 0.35s ease-out;
+}
+
+
+/*************************************
+▼ UI全体の質感向上（ぼかし＋光沢）
+*************************************/
+.ui-card, #boardUsedOverlay{
+  backdrop-filter: blur(8px) saturate(1.1);
+}
+
+
+/*************************************
+▼ 戦況ログの「ポンッ」アニメ（読みやすさアップ）
+*************************************/
+@keyframes logPop {
+  0%   { transform:translateY(6px); opacity:0; }
+  100% { transform:translateY(0px); opacity:1; }
+}
+
+.log-line{
+  animation:logPop 0.18s ease-out;
+}
+/* =========================================
+   A）駒の移動アニメ
+   ・前ターンに動いたマス（last-turn-***）をふわっと光らせる
+   ・既存の last-turn-white / last-turn-black にアニメだけ追加
+   ========================================= */
+
+.last-turn-white::after,
+.last-turn-black::after {
+  /* もともとの枠線を活かしつつアニメ追加 */
+  animation: lastMovePulse 0.35s ease-out;
+  transform-origin: center;
+}
+
+/* 白ターンのマスは少し暖色寄りに光らせたい場合（任意）
+.last-turn-white::after {
+  box-shadow: 0 0 14px rgba(255, 240, 180, 0.7);
+}
+.last-turn-black::after {
+  box-shadow: 0 0 14px rgba(160, 190, 255, 0.7);
+}
+*/
+
+@keyframes lastMovePulse {
+  0% {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1.03);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* おまけ：
+   今手番のプレイヤー側は盤の枠がほんのり呼吸する感じにする
+   （盤がずっと少しだけ動いてる＝「命ある世界」感を出す） */
+
+#board.white-turn {
+  animation: boardGlowWhite 1.2s ease-in-out infinite alternate;
+}
+#board.black-turn {
+  animation: boardGlowBlack 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes boardGlowWhite {
+  0% {
+    box-shadow: 0 0 10px rgba(255, 240, 200, 0.25);
+    transform: translateY(0);
+  }
+  100% {
+    box-shadow: 0 0 18px rgba(255, 240, 200, 0.45);
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes boardGlowBlack {
+  0% {
+    box-shadow: 0 0 10px rgba(160, 190, 255, 0.25);
+    transform: translateY(0);
+  }
+  100% {
+    box-shadow: 0 0 18px rgba(160, 190, 255, 0.45);
+    transform: translateY(-1px);
+  }
+}
+/* ▼ 今やるべき行動を視覚的にガイドするハイライト */
+@keyframes phasePulse {
+  0% {
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.1);
+    transform: translateY(0);
+  }
+  100% {
+    box-shadow: 0 0 16px rgba(255, 255, 200, 0.4);
+    transform: translateY(-1px);
+  }
+}
+
+/* カードフェーズ → 手札エリアを強調 */
+body[data-phase="card"] #handsWrapper {
+  animation: phasePulse 1.1s ease-in-out infinite alternate;
+  border-radius: 10px;
+}
+
+/* 移動フェーズ → 盤面を強調 */
+body[data-phase="move"] #boardWrapper {
+  animation: phasePulse 1.1s ease-in-out infinite alternate;
+}
+/* 前ターンマス：枠だけ残してアニメ無効（クリックごとの点滅防止） */
+.last-turn-white::after,
+.last-turn-black::after{
+  animation:none !important;
+}
+/* === 盤面エフェクトレイヤー === */
+#effectLayer{
+  position:absolute;
+  top:6px; left:6px; right:6px; bottom:6px; /* boardWrapper の内側にフィット */
+  pointer-events:none;
+  overflow:visible;
+}
+
+#effectLayer .effect{
+  position:absolute;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* 隕石（smite）：☄ が上から落ちて衝撃波 */
+@keyframes smiteMeteor {
+  0%   { transform:translate(-50%,-140%) scale(0.8); opacity:0; }
+  60%  { transform:translate(-50%,10%)  scale(1.15); opacity:1; }
+  100% { transform:translate(-50%,0%)   scale(0.9);  opacity:0; }
+}
+@keyframes smiteImpact {
+  0%   { transform:scale(0.3); opacity:0; }
+  50%  { transform:scale(1.0); opacity:1; }
+  100% { transform:scale(1.5); opacity:0; }
+}
+.effect-smite::before{
+  content:'☄';
+  position:absolute;
+  left:50%; top:0;
+  font-size:40px;
+  color:#ffe2a8;
+  text-shadow:0 0 12px rgba(255,200,120,0.9);
+  animation:smiteMeteor 0.45s ease-out forwards;
+}
+.effect-smite::after{
+  content:'';
+  position:absolute;
+  width:70%; height:70%;
+  border-radius:50%;
+  border:2px solid rgba(255,235,190,0.9);
+  box-shadow:0 0 18px rgba(255,235,190,0.85);
+  animation:smiteImpact 0.45s ease-out forwards;
+}
+
+/* 疫病（plague）：🦠 が地面から浮き上がる */
+@keyframes plagueRise {
+  0%   { transform:translateY(40%) scale(0.3); opacity:0; }
+  40%  { transform:translateY(0%)  scale(1.1); opacity:1; }
+  100% { transform:translateY(-15%) scale(1.0); opacity:0; }
+}
+.effect-plague{
+  filter:drop-shadow(0 0 8px rgba(140,255,180,0.85));
+}
+.effect-plague::before{
+  content:'🦠';
+  font-size:34px;
+  animation:plagueRise 0.8s ease-out forwards;
+}
+
+/* 神成（chain）：⚡ が落ちて周囲に電撃が広がる */
+@keyframes chainStrike {
+  0%   { transform:translateY(-120%) scale(0.6); opacity:0; }
+  40%  { transform:translateY(0%)     scale(1.2); opacity:1; }
+  100% { transform:translateY(10%)    scale(0.9); opacity:0; }
+}
+@keyframes chainPulse {
+  0%   { box-shadow:0 0 0 rgba(180,210,255,0.0); }
+  50%  { box-shadow:0 0 14px rgba(180,210,255,0.9); }
+  100% { box-shadow:0 0 0 rgba(180,210,255,0.0); }
+}
+.effect-chain{
+  box-shadow:0 0 0 rgba(180,210,255,0.0);
+  border-radius:8px;
+  animation:chainPulse 0.4s ease-out forwards;
+}
+.effect-chain::before{
+  content:'⚡';
+  font-size:40px;
+  color:#e0f0ff;
+  text-shadow:0 0 14px rgba(200,230,255,0.95);
+  animation:chainStrike 0.35s linear forwards;
+}
+
+/* 飢餓（divine）：☠ が地面から浮かび上がる */
+@keyframes divineRise {
+  0%   { transform:translateY(40%) scale(0.4); opacity:0; }
+  40%  { transform:translateY(0%)  scale(1.1); opacity:1; }
+  100% { transform:translateY(-10%) scale(0.9); opacity:0; }
+}
+.effect-divine{
+  filter:drop-shadow(0 0 10px rgba(255,230,200,0.9));
+}
+.effect-divine::before{
+  content:'☠';
+  font-size:36px;
+  color:#ffe9d0;
+  animation:divineRise 0.6s ease-out forwards;
+}
+/* ---- キング周りのバフ演出 ---- */
+.cell.king-barrier-active {
+  box-shadow: 0 0 10px 3px rgba(80, 200, 255, 0.9);
+}
+
+.cell.king-prayer-active {
+  box-shadow: 0 0 10px 3px rgba(255, 215, 0, 0.9);
+}
+
+/* 既存 buff-symbol をちょっと大きく・見やすく */
+.buff-symbol {
+  font-size: 18px;
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+}
+.buff-symbol-left {
+  left: 4px;
+  right: auto;
+}
+
+/* ---- 混乱中の盤面演出 ---- */
 #board {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  grid-template-rows: repeat(8, 1fr);
-  width: 100%;
-  max-width: 420px;
-  max-height: 420px;
-  aspect-ratio: 1 / 1;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+  position: relative; /* ::after 用に必要 */
 }
 
-.cell {
-  border: 1px solid rgba(255, 255, 255, 0.06);
+#board.timestop-lock-white::after,
+#board.timestop-lock-black::after {
+  content: '混乱中：駒は動かせません';
+  position: absolute;
+  inset: 8px;
+  border-radius: 12px;
+  border: 2px dashed rgba(255, 255, 255, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
-  position: relative;
-}
-
-.cell:nth-child(odd) {
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.cell:nth-child(even) {
-  background: rgba(0, 0, 0, 0.3);
-}
-
-.cell.highlight-move {
-  background: rgba(90, 180, 255, 0.35);
-}
-
-.cell.highlight-attack {
-  background: rgba(255, 90, 90, 0.4);
-}
-
-.cell.debuff {
-  background: rgba(120, 90, 255, 0.32);
-}
-
-.cell .hp-label {
-  position: absolute;
-  bottom: 2px;
-  left: 3px;
-  font-size: 10px;
-  padding: 1px 3px;
-  border-radius: 4px;
-  background: rgba(0, 0, 0, 0.6);
-}
-
-.piece-white {
-  color: #fdfdff;
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
-}
-
-.piece-black {
-  color: #ffc857;
-  text-shadow: 0 0 8px rgba(255, 200, 87, 0.7);
-}
-
-/* そのターン使用中ハイヤーカード表示 */
-
-#boardUsedOverlay {
-  position: absolute;
-  top: 6px;
-  left: 8px;
-  right: 8px;
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-size: 11px;
-  text-align: center;
-  background: rgba(0, 0, 0, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-weight: bold;
+  font-size: 18px;
+  color: #fff;
   pointer-events: none;
+  background: radial-gradient(circle, rgba(150, 150, 255, 0.25), transparent);
 }
 
-#boardUsedOverlay.overlay-empty {
-  opacity: 0.6;
+#board.timestop-lock-white .cell,
+#board.timestop-lock-black .cell {
+  animation: timestopPulse 1s infinite alternate;
 }
 
-/* 底部ステータス */
+@keyframes timestopPulse {
+  from { filter: grayscale(0.1) brightness(1); }
+  to   { filter: grayscale(0.7) brightness(0.8); }
+}
 
-#bottomStatus {
+/* ---- 状態バーのピル表示 ---- */
+#effectsBar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
   margin-top: 6px;
+  font-size: 13px;
+}
+
+.effects-side {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-/* 効果アイコンバー */
-
-#effectsBar {
-  min-height: 20px;
-  border-radius: 999px;
-  background: rgba(5, 12, 40, 0.95);
-  border: 1px solid rgba(120, 140, 255, 0.4);
-  padding: 3px 6px;
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  font-size: 11px;
-  overflow-x: auto;
+.effects-label {
+  opacity: 0.8;
 }
 
-/* ハイヤー使用状況 */
-
-#hayerStatus {
-  display: flex;
-  gap: 4px;
-  justify-content: space-between;
-}
-
-.hayer-side {
-  flex: 1;
-  background: rgba(3, 7, 24, 0.9);
-  border-radius: 10px;
-  padding: 4px 6px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.hayer-title {
-  font-size: 10px;
-  opacity: 0.85;
-  margin-bottom: 2px;
-}
-
-.hayer-pills {
+.effects-icons {
   display: flex;
   flex-wrap: wrap;
-  gap: 2px;
+  gap: 4px;
 }
 
-.hayer-pill {
-  font-size: 9px;
-  padding: 1px 4px;
+.effect-pill {
+  padding: 2px 8px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(30, 30, 30, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  white-space: nowrap;
 }
 
-.hayer-pill.used {
-  opacity: 0.4;
-  text-decoration: line-through;
+.effect-pill.effect-empty {
+  opacity: 0.5;
+  font-style: italic;
 }
-
-/* ===============================
-   中央カラム（モード/手札/フェーズ）
-   =============================== */
-
-#centerColumn h1 {
-  font-size: 22px;
-  letter-spacing: 0.12em;
-  text-align: center;
-  margin: 0 0 4px;
-}
-
-#modeButtons {
-  display: flex;
-  gap: 4px;
-  justify-content: center;
-}
-
-#modeButtons button {
-  flex: 1;
-  padding: 6px 8px;
-  font-size: 11px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(5, 12, 40, 0.85);
-  color: #f5f5ff;
-  cursor: pointer;
-}
-
-#modeButtons button.active {
-  background: linear-gradient(135deg, #ffd86b, #ff9f43);
-  color: #241305;
-  border-color: rgba(255, 255, 255, 0.6);
-  box-shadow: 0 0 12px rgba(255, 194, 96, 0.7);
-}
-
-#systemButtons {
-  display: flex;
-  gap: 4px;
-  justify-content: center;
-}
-
-#systemButtons button {
-  flex: 1;
-  padding: 4px 6px;
-  font-size: 11px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(3, 8, 22, 0.9);
-  color: #f5f5ff;
-  cursor: pointer;
-}
-
-/* フェーズパネル */
-
-.panel {
-  background: rgba(4, 7, 20, 0.95);
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  padding: 4px 6px;
-  font-size: 11px;
-}
-
-#phasePanel {
-  min-height: 32px;
-}
-
-/* 手札 */
-
-#handsWrapper {
-  display: flex;
-  gap: 4px;
-}
-
-.handCol {
-  flex: 1;
-  background: rgba(4, 9, 25, 0.9);
-  border-radius: 10px;
-  padding: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.handCol-title {
-  font-size: 10px;
-  opacity: 0.9;
-}
-
-#handWhite,
-#handBlack {
-  display: flex;
-  gap: 4px;
-}
-
-/* 手札カードの見た目（game.jsで生成） */
-
-.card {
-  flex: 1;
-  min-width: 0;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: radial-gradient(circle at top, rgba(255, 255, 255, 0.18), rgba(5, 10, 30, 0.97));
-  padding: 4px;
-  font-size: 10px;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.card-title {
-  font-weight: 600;
-  font-size: 10px;
-}
-
-.card-desc {
-  font-size: 9px;
-  opacity: 0.9;
-  line-height: 1.35;
-}
-
-.card.selected {
-  border-color: #ffd86b;
-  box-shadow: 0 0 0 1px rgba(255, 216, 107, 0.8), 0 0 10px rgba(255, 216, 107, 0.6);
-}
-
-/* ターン終了ボタン */
-
-#endTurnBtn {
-  margin-top: 4px;
-  padding: 6px 8px;
-  border-radius: 999px;
-  border: none;
-  cursor: pointer;
-  font-size: 12px;
-  letter-spacing: 0.12em;
-  font-weight: 600;
-  background: linear-gradient(135deg, #78ffd6, #4bc0c8);
-  color: #021015;
-  box-shadow: 0 0 14px rgba(74, 209, 196, 0.8);
-}
-
-/* シーン画像 */
-
-#sceneBox {
-  margin-top: 4px;
-  border-radius: 10px;
-  overflow: hidden;
-  height: 120px;
-}
-
-#sceneImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-/* ===============================
-   右カラム（戦況／リプレイ／ログ）
-   =============================== */
-
-#rightColumn {
-  overflow: hidden;
-}
-
-#battlePanel,
-#replayPanel,
-#logPanel {
-  background: rgba(4, 7, 20, 0.95);
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  padding: 4px 6px;
-  font-size: 11px;
-}
-
-.panel-title,
-#logPanelTitle {
-  font-size: 11px;
-  font-weight: 600;
-  margin-bottom: 2px;
-  letter-spacing: 0.08em;
-}
-
-#battleContent {
-  display: flex;
-  gap: 4px;
-}
-
-.battle-side {
-  flex: 1;
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.35);
-  padding: 3px 4px;
-}
-
-/* リプレイ */
-
-#replayBody {
-  min-height: 32px;
-}
-
-/* ログ */
-
-#log {
-  max-height: 260px;
-  overflow-y: auto;
-  padding-right: 3px;
-}
-
-.log-entry {
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.16);
-  padding: 2px 0;
-}
-
-.log-entry:last-child {
-  border-bottom: none;
-}
-
-#notesUnderLog {
-  margin-top: 4px;
-  font-size: 10px;
-  opacity: 0.7;
-  line-height: 1.5;
-}
-
-/* ▼スマホ（900px以下）だけ▼ */
+/* 900px以下 = スマホレイアウト */
 @media (max-width: 900px) {
-
   #mainLayout {
-    display: flex;
-    flex-direction: column;
-  }
-
-  #leftColumn,
-  #centerColumn,
-  #rightColumn {
-    width: 100%;
-  }
-
-  #sceneBox {
-    display: none;
-  }
-
-  #replayPanel {
-    display: none;
-  }
-
-  #notesUnderLog {
-    display: none;
+    flex-direction: column;      /* 盤面＋右カラムを縦並びにする */
+    align-items: center;
   }
 
   #boardWrapper {
-    max-width: 450px;
-    margin: 0 auto;
+    width: 95vw;                 /* 画面幅にフィットさせる */
+    max-width: 500px;
+    height: auto;
   }
 
-  #board {
-    width: 100%;
-    aspect-ratio: 1 / 1;
+  #rightColumn {
+    width: 95vw;
+    max-width: 500px;
+    margin-top: 8px;
+  }
+
+  .control-button {
+    font-size: 14px;
+    padding: 6px 10px;
   }
 }
-/* ▲ここまで▲ */
+#systemButtons button {
+  margin-right: 6px;
+  padding: 6px 10px;
+  background: #222;
+  color: #ddd;
+  border: solid 1px #555;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+#systemButtons button:hover {
+  background: #444;
+}
+#fullscreenBtn {
+  width: auto;
+}
+#systemButtons {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+#bgmBtn,
+#fullscreenBtn {
+  padding: 6px 14px;
+  background: #333;
+  color: white;
+  border-radius: 6px;
+  border: 1px solid #777;
+  margin-left: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#bgmBtn:hover,
+#fullscreenBtn:hover {
+  background: #444;
+}
