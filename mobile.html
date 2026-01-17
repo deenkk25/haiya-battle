@@ -3,501 +3,91 @@
 <head>
   <meta charset="UTF-8" />
   <title>ハイヤーバトル（モバイル版）</title>
-
-  <!-- スマホ表示用 -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- モバイル専用デザイン（style.css に依存しない） -->
-  <style>
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #050710;
-      color: #f5f5ff;
-    }
-
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: stretch;
-    }
-
-    .app {
-      width: 100%;
-      max-width: 480px;
-      height: 100vh;
-      padding: 6px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    header {
-      text-align: center;
-      font-size: 18px;
-      letter-spacing: 0.12em;
-      font-weight: 600;
-      padding-bottom: 2px;
-    }
-
-    header .sub {
-      display: block;
-      font-size: 10px;
-      opacity: 0.7;
-      margin-top: -2px;
-    }
-
-    main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      overflow: hidden;
-    }
-
-    /* --- 上段：盤面 --- */
-
-    #topArea {
-      flex: 0 0 55%;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    #boardWrapper {
-      flex: 1;
-      position: relative;
-      border-radius: 12px;
-      padding: 4px;
-      background: radial-gradient(circle at top, #222844 0, #050710 70%);
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    #boardUsedOverlay {
-      position: absolute;
-      top: 4px;
-      left: 8px;
-      right: 8px;
-      padding: 3px 6px;
-      border-radius: 999px;
-      font-size: 10px;
-      text-align: center;
-      background: rgba(0, 0, 0, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      pointer-events: none;
-    }
-
-    #board {
-      width: 100%;
-      max-width: 440px;
-      aspect-ratio: 1 / 1;
-      display: grid;
-      grid-template-columns: repeat(8, 1fr);
-      grid-template-rows: repeat(8, 1fr);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    .cell {
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      font-size: 20px;
-    }
-
-    .cell:nth-child(odd) {
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    .cell:nth-child(even) {
-      background: rgba(0, 0, 0, 0.3);
-    }
-
-    .cell.highlight-move {
-      background: rgba(90, 180, 255, 0.35);
-    }
-
-    .cell.highlight-attack {
-      background: rgba(255, 90, 90, 0.4);
-    }
-
-    .cell.debuff {
-      background: rgba(120, 90, 255, 0.32);
-    }
-
-    .hp-label {
-      position: absolute;
-      bottom: 2px;
-      left: 3px;
-      font-size: 9px;
-      padding: 1px 3px;
-      border-radius: 4px;
-      background: rgba(0, 0, 0, 0.6);
-    }
-
-    .piece-white {
-      color: #fdfdff;
-      text-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
-    }
-
-    .piece-black {
-      color: #ffc857;
-      text-shadow: 0 0 8px rgba(255, 200, 87, 0.7);
-    }
-
-    #bottomStatus {
-      margin-top: 2px;
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    #effectsBar {
-      min-height: 18px;
-      border-radius: 999px;
-      background: rgba(5, 12, 40, 0.95);
-      border: 1px solid rgba(120, 140, 255, 0.4);
-      padding: 2px 6px;
-      font-size: 10px;
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      overflow-x: auto;
-    }
-
-    #hayerStatus {
-      display: flex;
-      gap: 3px;
-    }
-
-    .hayer-side {
-      flex: 1;
-      background: rgba(3, 7, 24, 0.9);
-      border-radius: 8px;
-      padding: 3px 4px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      font-size: 9px;
-    }
-
-    .hayer-title {
-      opacity: 0.85;
-      margin-bottom: 2px;
-    }
-
-    .hayer-pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 2px;
-    }
-
-    .hayer-pill {
-      padding: 1px 4px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      font-size: 8px;
-    }
-
-    .hayer-pill.used {
-      opacity: 0.4;
-      text-decoration: line-through;
-    }
-
-    /* --- 中段：モード・手札・ボタン --- */
-
-    #midArea {
-      flex: 0 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      padding: 4px;
-      border-radius: 10px;
-      background: radial-gradient(circle at top, #13162c 0, #050710 70%);
-      box-shadow: 0 0 14px rgba(0, 0, 0, 0.5);
-    }
-
-    #modeButtons,
-    #systemButtons {
-      display: flex;
-      gap: 4px;
-      justify-content: center;
-    }
-
-    #modeButtons button,
-    #systemButtons button {
-      flex: 1;
-      padding: 4px 6px;
-      font-size: 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(5, 12, 40, 0.9);
-      color: #f5f5ff;
-    }
-
-    #modeButtons button.active {
-      background: linear-gradient(135deg, #ffd86b, #ff9f43);
-      color: #241305;
-      border-color: rgba(255, 255, 255, 0.6);
-      box-shadow: 0 0 10px rgba(255, 194, 96, 0.7);
-    }
-
-    #phasePanel {
-      background: rgba(4, 7, 20, 0.95);
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.16);
-      padding: 3px 5px;
-      font-size: 10px;
-      min-height: 26px;
-    }
-
-    #handsWrapper {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    .handCol {
-      background: rgba(4, 9, 25, 0.9);
-      border-radius: 8px;
-      padding: 3px 4px;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    .handCol-title {
-      font-size: 9px;
-      opacity: 0.9;
-    }
-
-    #handWhite,
-    #handBlack {
-      display: flex;
-      gap: 3px;
-    }
-
-    .card {
-      flex: 1;
-      min-width: 0;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: radial-gradient(circle at top, rgba(255, 255, 255, 0.18), rgba(5, 10, 30, 0.97));
-      padding: 3px;
-      font-size: 9px;
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-    }
-
-    .card-title {
-      font-weight: 600;
-      font-size: 9px;
-    }
-
-    .card-desc {
-      font-size: 8px;
-      opacity: 0.9;
-      line-height: 1.3;
-    }
-
-    .card.selected {
-      border-color: #ffd86b;
-      box-shadow: 0 0 0 1px rgba(255, 216, 107, 0.8), 0 0 8px rgba(255, 216, 107, 0.6);
-    }
-
-    #endTurnBtn {
-      margin-top: 2px;
-      padding: 5px 6px;
-      border-radius: 999px;
-      border: none;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      background: linear-gradient(135deg, #78ffd6, #4bc0c8);
-      color: #021015;
-      box-shadow: 0 0 12px rgba(74, 209, 196, 0.8);
-    }
-
-    /* --- 下段：戦況・リプレイ・ログ（内部スクロール） --- */
-
-    #bottomArea {
-      flex: 1;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    #rightColumn {
-      flex: 1;
-      overflow-y: auto;
-      padding: 4px;
-      border-radius: 10px;
-      background: radial-gradient(circle at top, #13162c 0, #050710 70%);
-      box-shadow: 0 0 14px rgba(0, 0, 0, 0.5);
-    }
-
-    #battlePanel,
-    #replayPanel,
-    #logPanel {
-      background: rgba(4, 7, 20, 0.95);
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      padding: 3px 4px;
-      font-size: 10px;
-      margin-bottom: 4px;
-    }
-
-    .panel-title,
-    #logPanelTitle {
-      font-size: 10px;
-      font-weight: 600;
-      margin-bottom: 2px;
-      letter-spacing: 0.08em;
-    }
-
-    #battleContent {
-      display: flex;
-      gap: 3px;
-    }
-
-    .battle-side {
-      flex: 1;
-      border-radius: 6px;
-      background: rgba(0, 0, 0, 0.35);
-      padding: 3px 3px;
-      min-height: 32px;
-    }
-
-    #replayBody {
-      min-height: 30px;
-    }
-
-    #log {
-      max-height: 40vh;
-      overflow-y: auto;
-      padding-right: 2px;
-    }
-
-    .log-entry {
-      border-bottom: 1px dashed rgba(255, 255, 255, 0.16);
-      padding: 2px 0;
-    }
-
-    .log-entry:last-child {
-      border-bottom: none;
-    }
-
-    #notesUnderLog {
-      margin-top: 2px;
-      font-size: 9px;
-      opacity: 0.7;
-      line-height: 1.4;
-      display: none; /* 高さ節約のためスマホでは非表示 */
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 
 <body>
-  <div class="app">
-    <header>
-      HAIYA-BATTLE
-      <span class="sub">モバイル版</span>
-    </header>
+  <div id="mainLayout">
+    <div id="leftColumn">
+      <div id="boardWrapper">
+        <div id="boardUsedOverlay" class="overlay-empty">使用ハイヤーカード：なし</div>
+        <div id="board"></div>
+      </div>
 
-    <main>
-      <!-- 上段：盤面＋ステータス -->
-      <section id="topArea">
-        <div id="boardWrapper">
-          <div id="boardUsedOverlay" class="overlay-empty">使用ハイヤーカード：なし</div>
-          <div id="board"></div>
-        </div>
-
-        <div id="bottomStatus">
-          <div id="effectsBar"></div>
-          <div id="hayerStatus">
-            <div class="hayer-side">
-              <div class="hayer-title">白のハイヤー（使用状況）</div>
-              <div id="hayerWhiteStatus" class="hayer-pills"></div>
-            </div>
-            <div class="hayer-side">
-              <div class="hayer-title">黒のハイヤー（使用状況）</div>
-              <div id="hayerBlackStatus" class="hayer-pills"></div>
-            </div>
+      <div id="bottomStatus">
+        <div id="effectsBar"></div>
+        <div id="hayerStatus">
+          <div class="hayer-side">
+            <div class="hayer-title">白のハイヤー（使用状況）</div>
+            <div id="hayerWhiteStatus" class="hayer-pills"></div>
+          </div>
+          <div class="hayer-side">
+            <div class="hayer-title">黒のハイヤー（使用状況）</div>
+            <div id="hayerBlackStatus" class="hayer-pills"></div>
           </div>
         </div>
-      </section>
+      </div>
+    </div>
 
-      <!-- 中段：モード・手札・ボタン -->
-      <section id="midArea">
-        <div id="modeButtons">
-          <button id="modeCpuBtn" class="active">CPU戦（白vsCPU黒）</button>
-          <button id="modePvpBtn">対人戦（白vs黒）</button>
+    <div id="centerColumn">
+      <h1>ハイヤーバトル</h1>
+
+      <div id="modeButtons">
+        <button id="modeCpuBtn" class="active">CPU戦（白vsCPU黒）</button>
+        <button id="modePvpBtn">対人戦（白vs黒）</button>
+      </div>
+
+      <div id="systemButtons">
+        <button id="bgmBtn">BGM 再生</button>
+        <button id="fullscreenBtn">全画面</button>
+      </div>
+
+      <div id="phasePanel" class="panel"></div>
+
+      <div id="handsWrapper">
+        <div class="handCol">
+          <div class="handCol-title">白の手札（最大3枚）</div>
+          <div id="handWhite"></div>
         </div>
-
-        <div id="systemButtons">
-          <button id="bgmBtn">BGM 再生</button>
-          <button id="fullscreenBtn">全画面</button>
+        <div class="handCol">
+          <div class="handCol-title">黒の手札（最大3枚）</div>
+          <div id="handBlack"></div>
         </div>
+      </div>
 
-        <div id="phasePanel" class="panel"></div>
+      <button id="endTurnBtn">ターン終了</button>
 
-        <div id="handsWrapper">
-          <div class="handCol">
-            <div class="handCol-title">白の手札（最大3枚）</div>
-            <div id="handWhite"></div>
-          </div>
-          <div class="handCol">
-            <div class="handCol-title">黒の手札（最大3枚）</div>
-            <div id="handBlack"></div>
-          </div>
+      <div id="sceneBox" aria-label="scene">
+        <img id="sceneImage" src="battle.png" alt="scene" />
+      </div>
+    </div>
+
+    <div id="rightColumn">
+      <div id="battlePanel">
+        <div class="panel-title">戦況</div>
+        <div id="battleContent">
+          <div class="battle-side" id="battleWhite"></div>
+          <div class="battle-side" id="battleBlack"></div>
         </div>
+      </div>
 
-        <button id="endTurnBtn">ターン終了</button>
-      </section>
+      <div id="replayPanel">
+        <div class="panel-title">前ターンのリプレイ</div>
+        <div id="replayBody">まだ前ターンの情報はありません。</div>
+      </div>
 
-      <!-- 下段：戦況・リプレイ・ログ -->
-      <section id="bottomArea">
-        <div id="rightColumn">
-          <div id="battlePanel">
-            <div class="panel-title">戦況</div>
-            <div id="battleContent">
-              <div class="battle-side" id="battleWhite"></div>
-              <div class="battle-side" id="battleBlack"></div>
-            </div>
-          </div>
+      <div id="logPanel">
+        <div id="logPanelTitle">ログ</div>
+        <div id="log"></div>
 
-          <div id="replayPanel">
-            <div class="panel-title">前ターンのリプレイ</div>
-            <div id="replayBody">まだ前ターンの情報はありません。</div>
-          </div>
-
-          <div id="logPanel">
-            <div id="logPanelTitle">ログ</div>
-            <div id="log"></div>
-
-            <div id="notesUnderLog">
-              ・手札があるターンは必ずハイヤーカードを1枚使用（先行1ターン目を除く）<br />
-              ・ハイヤー使用＋駒の移動 または ターン終了ボタンでターン終了<br />
-              ・ターン制限（60ターン）またはハイヤー切れ・全滅で勝敗判定
-            </div>
-          </div>
+        <div id="notesUnderLog">
+          ・手札があるターンは必ずハイヤーカードを1枚使用（先行1ターン目を除く）<br>
+          ・ハイヤー使用＋駒の移動 または ターン終了ボタンでターン終了<br>
+          ・ターン制限（60ターン）またはハイヤー切れ・全滅で勝敗判定
         </div>
-      </section>
-    </main>
+      </div>
+    </div>
   </div>
 
   <!-- ゲーム本体ロジック（PC版と共通） -->
