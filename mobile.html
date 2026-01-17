@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>ハイヤーバトル（モバイル版）</title>
+
+  <!-- PC版と同じCSSを読みつつ、下の<style>でスマホだけ上書き -->
+  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    /* ▼ スマホ（縦持ち想定：幅900px以下）専用レイアウト ▼ */
+    @media (max-width: 900px) {
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        overflow: hidden;               /* 画面外にだらだらスクロールさせない */
+      }
+
+      /* 全体を縦一列に並べる */
+      #mainLayout {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 6px;
+        height: 100vh;
+        box-sizing: border-box;
+        align-items: center;
+      }
+
+      /* 各カラムは画面幅いっぱい（最大480px） */
+      #leftColumn,
+      #centerColumn,
+      #rightColumn {
+        width: 100%;
+        max-width: 480px;
+        margin: 0 auto;
+      }
+
+      /* 盤面のラッパーをスマホ幅にフィット */
+      #leftColumn {
+        flex: 0 0 auto;
+      }
+
+      #boardWrapper {
+        width: 100%;
+        max-width: 480px;
+        margin: 0 auto;
+      }
+
+      /* 盤面を正方形にして、マスは自動調整 */
+      #board {
+        width: 100%;
+        max-width: 480px;
+        height: auto;
+        aspect-ratio: 1 / 1;                     /* 正方形 */
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);   /* px固定を上書き */
+        grid-template-rows: repeat(8, 1fr);
+      }
+
+      .cell {
+        width: 100%;
+        height: 100%;
+        font-size: 22px;                         /* 盤面優先で少しだけ小さめ */
+      }
+
+      /* 盤面下のステータスをコンパクトに */
+      #bottomStatus {
+        margin-top: 4px;
+        gap: 4px;
+      }
+
+      #effectsBar {
+        font-size: 10px;
+      }
+
+      .hayer-title {
+        font-size: 9px;
+      }
+
+      .hayer-pill {
+        font-size: 9px;
+        padding: 1px 4px;
+      }
+
+      /* 中央カラム：手札＆ボタン部分も少し圧縮 */
+      #centerColumn {
+        flex: 0 0 auto;
+      }
+
+      h1 {
+        font-size: 20px;
+        text-align: center;
+        margin: 0 0 4px;
+      }
+
+      #modeButtons button,
+      #systemButtons button,
+      #endTurnBtn {
+        font-size: 11px;
+        padding: 4px 6px;
+      }
+
+      #handsWrapper {
+        flex-direction: column;   /* 手札を縦積み */
+        gap: 4px;
+      }
+
+      .handCol-title {
+        font-size: 10px;
+      }
+
+      .card {
+        font-size: 10px;
+        padding: 4px;
+      }
+
+      /* 盤面優先なのでシーン画像はスマホでは非表示 */
+      #sceneBox {
+        display: none;
+      }
+
+      /* 下段：戦況・リプレイ・ログは「まとめて1枠でスクロール」 */
+      #rightColumn {
+        flex: 1 1 auto;
+        max-height: 40vh;        /* 画面の下側40%くらい */
+        overflow-y: auto;
+      }
+
+      #battlePanel,
+      #replayPanel,
+      #logPanel {
+        font-size: 11px;
+        margin-bottom: 4px;
+      }
+
+      /* さらにスクロール量を減らしたいので、リプレイは一旦オフでもOKならここを有効化
+         display: none; にしたいときはコメントアウト外してね
+      */
+      /*
+      #replayPanel {
+        display: none;
+      }
+      */
+
+      /* 説明テキストは高さ節約のため非表示（必要ならここをコメントアウト） */
+      #notesUnderLog {
+        display: none;
+      }
+
+      /* ログ自体は右カラム内でスクロール */
+      #log {
+        max-height: 26vh;
+        overflow-y: auto;
+      }
+    }
+    /* ▲ スマホ専用ここまで ▲ */
+  </style>
+</head>
+
+<body>
+  <div id="mainLayout">
+    <!-- 左：盤面＋状態 -->
+    <div id="leftColumn">
+      <div id="boardWrapper">
+        <div id="boardUsedOverlay" class="overlay-empty">使用ハイヤーカード：なし</div>
+        <div id="board"></div>
+      </div>
+
+      <div id="bottomStatus">
+        <div id="effectsBar"></div>
+        <div id="hayerStatus">
+          <div class="hayer-side">
+            <div class="hayer-title">白のハイヤー（使用状況）</div>
+            <div id="hayerWhiteStatus" class="hayer-pills"></div>
+          </div>
+          <div class="hayer-side">
+            <div class="hayer-title">黒のハイヤー（使用状況）</div>
+            <div id="hayerBlackStatus" class="hayer-pills"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 中央：操作UI -->
+    <div id="centerColumn">
+      <h1>ハイヤーバトル</h1>
+
+      <div id="modeButtons">
+        <button id="modeCpuBtn" class="active">CPU戦（白vsCPU黒）</button>
+        <button id="modePvpBtn">対人戦（白vs黒）</button>
+      </div>
+
+      <div id="systemButtons">
+        <button id="bgmBtn">BGM 再生</button>
+        <button id="fullscreenBtn">全画面</button>
+      </div>
+
+      <div id="phasePanel" class="panel"></div>
+
+      <div id="handsWrapper">
+        <div class="handCol">
+          <div class="handCol-title">白の手札（最大3枚）</div>
+          <div id="handWhite"></div>
+        </div>
+        <div class="handCol">
+          <div class="handCol-title">黒の手札（最大3枚）</div>
+          <div id="handBlack"></div>
+        </div>
+      </div>
+
+      <button id="endTurnBtn">ターン終了</button>
+
+      <div id="sceneBox" aria-label="scene">
+        <img id="sceneImage" src="battle.png" alt="scene" />
+      </div>
+    </div>
+
+    <!-- 右：戦況＋リプレイ＋ログ＋説明 -->
+    <div id="rightColumn">
+      <div id="battlePanel">
+        <div class="panel-title">戦況</div>
+        <div id="battleContent">
+          <div class="battle-side" id="battleWhite"></div>
+          <div class="battle-side" id="battleBlack"></div>
+        </div>
+      </div>
+
+      <div id="replayPanel">
+        <div class="panel-title">前ターンのリプレイ</div>
+        <div id="replayBody">まだ前ターンの情報はありません。</div>
+      </div>
+
+      <div id="logPanel">
+        <div id="logPanelTitle">ログ</div>
+        <div id="log"></div>
+
+        <div id="notesUnderLog">
+          ・手札があるターンは必ずハイヤーカードを1枚使用（先行1ターン目を除く）<br>
+          ・ハイヤー使用＋駒の移動 または ターン終了ボタンでターン終了<br>
+          ・ターン制限（60ターン）またはハイヤー切れ・全滅で勝敗判定
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ゲーム本体ロジック（PC版と共通） -->
+  <script src="game.js"></script>
+</body>
+</html>
