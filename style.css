@@ -614,3 +614,109 @@ body[data-phase="move"] #boardWrapper {
 #fullscreenBtn:hover {
   background: #444;
 }
+/* ===== ここからスマホ用レイアウト調整 ===== */
+@media (max-width: 900px) {
+
+  /* 全体をスクロール可能にする */
+  html, body {
+    height: auto;
+    overflow: auto;
+  }
+
+  /* メインレイアウトを縦1カラムに */
+  #mainLayout,
+  body.mobile #mainLayout {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+    width: 100%;
+    height: auto;
+    box-sizing: border-box;
+  }
+
+  /* 各カラムは全幅を使う */
+  #leftColumn,
+  #centerColumn,
+  #rightColumn {
+    width: 100%;
+  }
+
+  /* 盤面を画面幅にフィットさせる */
+  #boardWrapper {
+    margin: 0 auto;
+  }
+
+  #board {
+    width: 92vw;
+    height: 92vw;          /* 正方形 */
+    max-width: 420px;
+    max-height: 420px;
+    margin: 0 auto;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+  }
+
+  .cell {
+    width: auto;
+    height: auto;
+  }
+
+  /* 手札は縦積みにして見やすく */
+  #handsWrapper {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .handCol-title {
+    font-size: 11px;
+  }
+
+  .card {
+    font-size: 11px;
+  }
+
+  /* 戦況・リプレイ・ログは下に縦並び */
+  #battlePanel,
+  #replayPanel,
+  #logPanel {
+    font-size: 11px;
+  }
+
+  /* ログが長くなっても画面全体が潰れないように */
+  #log {
+    max-height: 30vh;
+    overflow-y: auto;
+  }
+
+  /* 説明文は少し小さめ＆行間広めで読みやすく */
+  #notesUnderLog {
+    font-size: 10px;
+    line-height: 1.5;
+  }
+
+  /* タイトルやボタンも少しだけコンパクトに */
+  h1 {
+    font-size: 20px;
+    text-align: center;
+  }
+
+  #modeButtons button,
+  #systemButtons button,
+  #endTurnBtn {
+    font-size: 11px;
+    padding: 5px 8px;
+  }
+
+  /* シーン画像も横幅に合わせる */
+  #sceneBox {
+    height: auto;
+    max-height: 200px;
+  }
+
+  #sceneImage {
+    height: 100%;
+    object-fit: cover;
+  }
+}
+/* ===== スマホ用レイアウト調整ここまで ===== */
