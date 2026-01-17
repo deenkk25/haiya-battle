@@ -185,6 +185,20 @@
       display: none;
     }
     */
+        /* ★ 盤面サイズをスマホ用に強制上書きする部分 ★ */
+    #board {
+      width: 70vw !important;      /* 画面幅の70% */
+      height: 70vw !important;     /* 正方形にする */
+      max-width: 320px;            /* 大きくなりすぎ防止（お好みで調整可） */
+      max-height: 320px;
+    }
+
+    /* ★ マスの中の駒の大きさも盤面縮小に合わせて小さくする ★ */
+    .cell {
+      font-size: 3vw !important;   /* 画面幅に対する割合で文字サイズ */
+      min-font-size: 12px;         /* （この行はなくてもいい） */
+    }
+
   </style>
 </head>
 
