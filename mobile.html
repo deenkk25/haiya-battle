@@ -11,7 +11,7 @@
 
   <!-- モバイル専用レイアウト上書き -->
   <style>
-    /* ページ全体は普通に縦スクロールOKにする */
+    /* ページ全体は縦スクロールOKに */
     html,
     body {
       margin: 0;
@@ -21,25 +21,24 @@
       overflow-y: auto;
     }
 
-    /* PC版の「中央寄せ」レイアウトを解除して、普通に縦積みにする */
+    /* 中央寄せレイアウトを解除して普通の縦並びに */
     body {
       display: block;
     }
 
-    /* 3カラム → 縦1カラムに変更 */
+    /* 3カラム → 縦1カラム */
     #mainLayout {
       display: flex;              /* grid を上書き */
       flex-direction: column;
-      gap: 8px;
-      padding: 8px;
+      gap: 6px;
+      padding: 6px;
       height: auto;
       width: 100%;
-      max-width: 480px;           /* スマホ幅 */
+      max-width: 420px;           /* スマホ幅 */
       margin: 0 auto;
       box-sizing: border-box;
     }
 
-    /* 各ブロックは幅100% */
     #leftColumn,
     #centerColumn,
     #bottomStatus,
@@ -48,18 +47,17 @@
       height: auto;
     }
 
-    /* ===== ① 盤面（最重要） ===== */
+    /* ===== ① 盤面（少し小さめにして縦の余白を作る） ===== */
 
     #boardWrapper {
       width: 100%;
-      max-width: 420px;
+      max-width: 360px;           /* ★ ここで盤面サイズを少し抑える */
       margin: 0 auto;
     }
 
-    /* 盤面を正方形 + 自動マス割りにする */
     #board {
       width: 100%;
-      max-width: 420px;
+      max-width: 360px;
       height: auto;
       aspect-ratio: 1 / 1;
       display: grid;
@@ -68,42 +66,55 @@
     }
 
     .cell {
-      font-size: 18px;            /* スマホでも見えるくらいの文字サイズ */
+      font-size: 16px;            /* 盤面縮小に合わせて少し小さく */
     }
 
-    /* ===== ② フェーズ・手札・ターンボタン（盤面のすぐ下） ===== */
+    /* ===== ② フェーズ・手札・ターンボタン（操作ゾーン） ===== */
+
+    #centerColumn {
+      margin-top: 2px;
+    }
 
     #centerColumn h1 {
-      font-size: 18px;
+      font-size: 16px;
       text-align: center;
-      margin: 0 0 4px;
+      margin: 0 0 2px;
     }
 
-    #modeButtons,
-    #systemButtons {
+    /* モードボタンは小さくして高さ節約 */
+    #modeButtons {
       display: flex;
       gap: 4px;
       margin-bottom: 4px;
     }
 
-    #modeButtons button,
-    #systemButtons button,
-    #endTurnBtn {
-      font-size: 11px;
-      padding: 4px 6px;
+    #modeButtons button {
+      flex: 1;
+      font-size: 10px;
+      padding: 3px 4px;
     }
 
-    /* 手札は縦積みにしてコンパクトに */
+    /* BGM / 全画面は優先度低いのでスマホでは非表示にして高さ確保 */
+    #systemButtons {
+      display: none;
+    }
+
+    #phasePanel {
+      margin-bottom: 4px;
+      font-size: 11px;
+    }
+
+    /* 手札を縦積みにしてコンパクトに */
     #handsWrapper {
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      margin-top: 4px;
+      gap: 3px;
+      margin-bottom: 4px;
     }
 
     .handCol-title {
       font-size: 10px;
-      margin-bottom: 2px;
+      margin-bottom: 1px;
     }
 
     .card {
@@ -111,17 +122,24 @@
       padding: 4px;
     }
 
-    /* モバイルではイラストは非表示（そのぶん高さをフェーズ＆手札に回す） */
+    #endTurnBtn {
+      width: 100%;
+      font-size: 12px;
+      padding: 5px 0;
+      margin-bottom: 2px;
+    }
+
+    /* イラストはモバイルでは非表示 */
     #sceneBox {
       display: none;
     }
 
-    /* ===== ③ 状態（ハイヤー使用状況・効果バー） ===== */
+    /* ===== ③ 状態（ハイヤーカード使用状況・効果バー） ===== */
 
     #bottomStatus {
-      margin-top: 4px;
-      padding-top: 4px;
-      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      margin-top: 2px;
+      padding-top: 3px;
+      border-top: 1px solid rgba(255, 255, 255, 0.25);
       font-size: 10px;
     }
 
@@ -129,29 +147,18 @@
       font-size: 9px;
     }
 
-    .hayer-pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 2px;
-    }
-
     .hayer-pill {
       font-size: 9px;
       padding: 1px 4px;
     }
 
-    #effectsBar {
-      margin-bottom: 4px;
-      font-size: 10px;
-    }
-
-    /* ===== ④ 戦況＋ログ（情報ゾーン。ここだけ内側スクロール） ===== */
+    /* ===== ④ 戦況＋ログ（ここだけ内側スクロール） ===== */
 
     #rightColumn {
       margin-top: 4px;
       flex: 1 1 auto;
-      max-height: 35vh;      /* 画面の下 3〜4 割くらいを情報ゾーンに */
-      overflow-y: auto;      /* このゾーンだけスクロール */
+      max-height: 32vh;           /* 画面下 3割ちょいを情報ゾーンに */
+      overflow-y: auto;
     }
 
     #battlePanel,
@@ -161,21 +168,18 @@
       margin-bottom: 4px;
     }
 
-    /* 説明テキストはモバイルでは非表示でもOK */
+    /* 説明テキストはモバイルでは省略 */
     #notesUnderLog {
       display: none;
     }
 
-    /* ログが長くなったときは、この枠の中だけスクロール */
+    /* ログが長くなったら、この枠の中だけスクロール */
     #log {
-      max-height: 26vh;
+      max-height: 24vh;
       overflow-y: auto;
     }
 
-    /* 一画面をさらに重視したい場合は、前ターンリプレイを消すのも手：
-       必要になったら下のコメントアウトを外してね
-    */
-    /*
+    /* もっと詰めたい場合、前ターンリプレイを消すならこのコメントアウトを外す
     #replayPanel {
       display: none;
     }
@@ -202,6 +206,7 @@
         <button id="modePvpBtn">対人戦（白vs黒）</button>
       </div>
 
+      <!-- BGM / 全画面はスマホでは非表示（CSSで消している） -->
       <div id="systemButtons">
         <button id="bgmBtn">BGM 再生</button>
         <button id="fullscreenBtn">全画面</button>
@@ -225,7 +230,7 @@
       <!-- ターン終了ボタン -->
       <button id="endTurnBtn">ターン終了</button>
 
-      <!-- モバイルではCSSで非表示にしているが、一応DOMは残す -->
+      <!-- イラスト（モバイルでは非表示） -->
       <div id="sceneBox" aria-label="scene">
         <img id="sceneImage" src="battle.png" alt="scene" />
       </div>
