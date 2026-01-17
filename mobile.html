@@ -4,14 +4,14 @@
   <meta charset="UTF-8" />
   <title>ハイヤーバトル（モバイル版）</title>
 
-  <!-- PC版と同じ見た目 -->
+  <!-- PC版と同じCSS -->
   <link rel="stylesheet" href="style.css">
   <!-- スマホ向け -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <!-- モバイル専用レイアウト -->
   <style>
-    /* ページ全体は縦スクロールOKにする */
+    /* ページ全体：スクロールOKにして高さは自動 */
     html,
     body {
       margin: 0;
@@ -21,74 +21,88 @@
       overflow-y: auto;
     }
 
-    /* PC版の「中央寄せ」レイアウトを解除して普通の縦並びに */
+    /* PC版の中央寄せレイアウトを解除して縦並びにする */
     body {
       display: block;
     }
 
     /* 3カラム → 縦1カラム */
     #mainLayout {
-      display: flex;              /* grid を上書き */
+      display: flex;           /* grid を上書き */
       flex-direction: column;
       gap: 6px;
       padding: 6px;
-      height: auto;
       width: 100%;
-      max-width: 420px;           /* スマホ想定幅 */
+      max-width: 420px;        /* スマホ幅 */
       margin: 0 auto;
       box-sizing: border-box;
     }
 
     #leftColumn,
     #centerColumn,
-    #bottomStatus,
     #rightColumn {
       width: 100%;
       height: auto;
+      padding: 0;
     }
 
-    /* ===== ① 盤面（ちょっと小さめ） ===== */
+    /* ===== ① 盤面：きちんと小さくする ===== */
 
     #boardWrapper {
-      width: 100%;
       margin: 0 auto;
-      display: flex;
-      justify-content: center;
     }
 
-    /* ここで盤面サイズをガッツリ決める */
+    /* 盤面のサイズをスマホ用に強制上書き */
     #board {
-      width: 58vw !important;       /* 画面幅の58% */
-      height: 58vw !important;      /* 正方形 */
+      width: 60vw !important;     /* 画面幅の60% */
+      height: 60vw !important;    /* 正方形 */
       max-width: 320px;
       max-height: 320px;
       display: grid;
-      grid-template-columns: repeat(8, 1fr);   /* px固定マスを上書き */
-      grid-template-rows: repeat(8, 1fr);
+      grid-template-columns: repeat(8, 1fr) !important;
+      grid-template-rows: repeat(8, 1fr) !important;
     }
 
+    /* マスの width / height 64px を殺して、盤面サイズに合わせる */
     .cell {
-      font-size: 3.3vw !important;  /* 画面幅に対する割合で駒サイズ調整 */
+      width: auto !important;
+      height: auto !important;
+      font-size: 3.2vw !important;   /* 盤面縮小に合わせた駒サイズ */
       min-font-size: 12px;
     }
 
-    /* ===== ② 操作ゾーン：フェーズ＋手札＋ターン ===== */
+    /* 使用カードオーバーレイの幅も盤面に合わせて縮める */
+    #boardUsedOverlay {
+      max-width: 90%;
+      font-size: 11px;
+    }
+
+    /* ===== ② 中央：フェーズ＋手札＋ターンボタン ===== */
 
     #centerColumn {
-      margin-top: 2px;
+      margin-top: 4px;
     }
 
-    /* タイトルは高さを食うのでスマホでは非表示にする */
+    /* タイトルは少しだけ小さく */
     #centerColumn h1 {
-      display: none;
+      font-size: 16px;
+      margin: 0 0 4px;
+      text-align: center;
     }
 
-    /* モード切替ボタンもプレイ中はほぼ触らないので非表示でOK */
+    /* モード切替ボタンの高さを削る */
     #modeButtons {
-      display: none;
+      display: flex;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+    #modeButtons button {
+      flex: 1;
+      font-size: 10px;
+      padding: 3px 4px;
     }
 
-    /* BGM / 全画面ボタンもカット（必要ならここを display:flex に戻せる） */
+    /* BGM / 全画面は優先度低いので隠して高さを節約 */
     #systemButtons {
       display: none;
     }
@@ -123,36 +137,32 @@
       margin-bottom: 2px;
     }
 
-    /* イラストはモバイルでは非表示にして高さを稼ぐ */
+    /* イラストはモバイルでは非表示にして高さを明け渡す */
     #sceneBox {
       display: none;
     }
 
-    /* ===== ③ 状態（ハイヤーカード使用状況・効果バー） ===== */
+    /* ===== ③ 状態（ハイヤー使用状況など） ===== */
 
     #bottomStatus {
       margin-top: 2px;
-      padding-top: 3px;
-      border-top: 1px solid rgba(255, 255, 255, 0.25);
+      padding-top: 4px;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
       font-size: 10px;
     }
 
     .hayer-title {
       font-size: 9px;
     }
-
     .hayer-pill {
       font-size: 9px;
       padding: 1px 4px;
     }
 
-    /* ===== ④ 戦況＋ログ（ここだけ内側スクロール） ===== */
+    /* ===== ④ 戦況＋ログ（ここは多少スクロール前提） ===== */
 
     #rightColumn {
       margin-top: 4px;
-      flex: 1 1 auto;
-      max-height: 32vh;           /* 画面下 3割ちょいを情報ゾーンに */
-      overflow-y: auto;
     }
 
     #battlePanel,
@@ -162,37 +172,44 @@
       margin-bottom: 4px;
     }
 
-    /* 説明テキストはモバイルでは省略 */
+    /* 説明テキストはカットして高さ節約 */
     #notesUnderLog {
       display: none;
     }
 
-    /* ログが長くなったら、この枠の中だけスクロール */
+    /* ログが長くなったときだけ、この中をスクロール */
     #log {
-      max-height: 24vh;
+      max-height: 220px;
       overflow-y: auto;
     }
-
-    /* さらに詰めたいなら前ターンリプレイを消す（必要になったらコメント解除） */
-    /*
-    #replayPanel {
-      display: none;
-    }
-    */
   </style>
 </head>
 
 <body>
   <div id="mainLayout">
-    <!-- ① 盤面 -->
+    <!-- ① 盤面＋状態 -->
     <div id="leftColumn">
       <div id="boardWrapper">
         <div id="boardUsedOverlay" class="overlay-empty">使用ハイヤーカード：なし</div>
         <div id="board"></div>
       </div>
+
+      <div id="bottomStatus">
+        <div id="effectsBar"></div>
+        <div id="hayerStatus">
+          <div class="hayer-side">
+            <div class="hayer-title">白のハイヤー（使用状況）</div>
+            <div id="hayerWhiteStatus" class="hayer-pills"></div>
+          </div>
+          <div class="hayer-side">
+            <div class="hayer-title">黒のハイヤー（使用状況）</div>
+            <div id="hayerBlackStatus" class="hayer-pills"></div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- ② フェーズ＋手札＋ターンボタン（操作ゾーン） -->
+    <!-- ② フェーズ＋手札＋ターン -->
     <div id="centerColumn">
       <h1>ハイヤーバトル</h1>
 
@@ -206,10 +223,8 @@
         <button id="fullscreenBtn">全画面</button>
       </div>
 
-      <!-- フェーズ表示 -->
       <div id="phasePanel" class="panel"></div>
 
-      <!-- 手札 -->
       <div id="handsWrapper">
         <div class="handCol">
           <div class="handCol-title">白の手札（最大3枚）</div>
@@ -221,31 +236,14 @@
         </div>
       </div>
 
-      <!-- ターン終了ボタン -->
       <button id="endTurnBtn">ターン終了</button>
 
-      <!-- イラスト（モバイルでは非表示） -->
       <div id="sceneBox" aria-label="scene">
         <img id="sceneImage" src="battle.png" alt="scene" />
       </div>
     </div>
 
-    <!-- ③ 状態（ハイヤーカード使用状況・効果バー） -->
-    <div id="bottomStatus">
-      <div id="effectsBar"></div>
-      <div id="hayerStatus">
-        <div class="hayer-side">
-          <div class="hayer-title">白のハイヤー（使用状況）</div>
-          <div id="hayerWhiteStatus" class="hayer-pills"></div>
-        </div>
-        <div class="hayer-side">
-          <div class="hayer-title">黒のハイヤー（使用状況）</div>
-          <div id="hayerBlackStatus" class="hayer-pills"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ④ 戦況＋リプレイ＋ログ（情報ゾーン） -->
+    <!-- ③ 戦況＋リプレイ＋ログ -->
     <div id="rightColumn">
       <div id="battlePanel">
         <div class="panel-title">戦況</div>
