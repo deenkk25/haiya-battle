@@ -4,14 +4,13 @@
   <meta charset="UTF-8" />
   <title>ハイヤーバトル（モバイル版）</title>
 
-  <!-- PC版と同じCSS -->
+  <!-- PC版と同じ見た目・ロジック -->
   <link rel="stylesheet" href="style.css">
-  <!-- スマホ向け -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- モバイル専用レイアウト -->
+  <!-- モバイル専用レイアウト上書き -->
   <style>
-    /* ページ全体：スクロールOKにして高さは自動 */
+    /* PC版の 100vh / overflow:hidden を解除して、縦スクロール可にする */
     html,
     body {
       margin: 0;
@@ -19,23 +18,22 @@
       height: auto;
       min-height: 100vh;
       overflow-y: auto;
+      background: radial-gradient(circle at top, #222 0%, #050505 60%, #000 100%);
+      color: #eee;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
-    /* PC版の中央寄せレイアウトを解除して縦並びにする */
-    body {
-      display: block;
-    }
-
-    /* 3カラム → 縦1カラム */
+    /* 3カラム grid → 縦1カラム flex に変更 */
     #mainLayout {
-      display: flex;           /* grid を上書き */
+      display: flex;              /* grid を上書き */
       flex-direction: column;
-      gap: 6px;
-      padding: 6px;
+      gap: 8px;
+      padding: 8px;
       width: 100%;
-      max-width: 420px;        /* スマホ幅 */
+      max-width: 480px;           /* スマホ幅 */
       margin: 0 auto;
       box-sizing: border-box;
+      height: auto;
     }
 
     #leftColumn,
@@ -43,66 +41,68 @@
     #rightColumn {
       width: 100%;
       height: auto;
-      padding: 0;
     }
 
-    /* ===== ① 盤面：きちんと小さくする ===== */
+    /* ===== ① 盤面（今の約1.5倍） ===== */
 
     #boardWrapper {
       margin: 0 auto;
     }
 
-    /* 盤面のサイズをスマホ用に強制上書き */
+    /* ★ 盤面サイズをスマホ用に強制上書き
+       「今 ≒ 60vw」の 1.5倍 → 90vw */
     #board {
-      width: 60vw !important;     /* 画面幅の60% */
-      height: 60vw !important;    /* 正方形 */
-      max-width: 320px;
-      max-height: 320px;
+      width: 90vw !important;
+      height: 90vw !important;
+      max-width: 460px;
+      max-height: 460px;
+
+      /* PC版の 64pxマス指定を上書きして、盤面サイズにフィットさせる */
       display: grid;
       grid-template-columns: repeat(8, 1fr) !important;
       grid-template-rows: repeat(8, 1fr) !important;
     }
 
-    /* マスの width / height 64px を殺して、盤面サイズに合わせる */
+    /* マスサイズも盤面に合わせて調整 */
     .cell {
       width: auto !important;
       height: auto !important;
-      font-size: 3.2vw !important;   /* 盤面縮小に合わせた駒サイズ */
-      min-font-size: 12px;
+      font-size: 4.6vw !important;   /* 盤面拡大に合わせた駒サイズ */
+      min-font-size: 14px;
     }
 
-    /* 使用カードオーバーレイの幅も盤面に合わせて縮める */
+    /* 使用ハイヤーカード表示を盤面幅に合わせて少しだけ小さく */
     #boardUsedOverlay {
       max-width: 90%;
       font-size: 11px;
     }
 
-    /* ===== ② 中央：フェーズ＋手札＋ターンボタン ===== */
+    /* ===== ② 操作ゾーン：フェーズ＋手札＋ターン ===== */
 
     #centerColumn {
       margin-top: 4px;
     }
 
-    /* タイトルは少しだけ小さく */
     #centerColumn h1 {
       font-size: 16px;
       margin: 0 0 4px;
       text-align: center;
     }
 
-    /* モード切替ボタンの高さを削る */
+    /* モード切替ボタンの高さを削る（スマホ用にコンパクト） */
     #modeButtons {
       display: flex;
       gap: 4px;
       margin-bottom: 4px;
     }
+
     #modeButtons button {
       flex: 1;
       font-size: 10px;
       padding: 3px 4px;
     }
 
-    /* BGM / 全画面は優先度低いので隠して高さを節約 */
+    /* BGM / 全画面ボタンは優先度低いのでスマホでは隠す */
     #systemButtons {
       display: none;
     }
@@ -112,7 +112,7 @@
       font-size: 11px;
     }
 
-    /* 手札は縦積みでコンパクトに */
+    /* 手札を縦に詰めて高さを抑える */
     #handsWrapper {
       display: flex;
       flex-direction: column;
@@ -122,12 +122,12 @@
 
     .handCol-title {
       font-size: 10px;
-      margin-bottom: 1px;
+      margin-bottom: 2px;
     }
 
     .card {
-      font-size: 10px;
-      padding: 4px;
+      font-size: 11px;
+      padding: 4px 5px;
     }
 
     #endTurnBtn {
@@ -137,12 +137,12 @@
       margin-bottom: 2px;
     }
 
-    /* イラストはモバイルでは非表示にして高さを明け渡す */
+    /* イラストはモバイルでは非表示にして、その分高さをフェーズ＆手札に回す */
     #sceneBox {
       display: none;
     }
 
-    /* ===== ③ 状態（ハイヤー使用状況など） ===== */
+    /* ===== ③ 状態（ハイヤーカード使用状況） ===== */
 
     #bottomStatus {
       margin-top: 2px;
@@ -154,12 +154,13 @@
     .hayer-title {
       font-size: 9px;
     }
+
     .hayer-pill {
       font-size: 9px;
       padding: 1px 4px;
     }
 
-    /* ===== ④ 戦況＋ログ（ここは多少スクロール前提） ===== */
+    /* ===== ④ 戦況＋ログ（ここは下の情報ゾーン） ===== */
 
     #rightColumn {
       margin-top: 4px;
@@ -172,12 +173,12 @@
       margin-bottom: 4px;
     }
 
-    /* 説明テキストはカットして高さ節約 */
+    /* 説明テキストはスマホではカット */
     #notesUnderLog {
       display: none;
     }
 
-    /* ログが長くなったときだけ、この中をスクロール */
+    /* ログが長くなったときだけ、この中でスクロール */
     #log {
       max-height: 220px;
       overflow-y: auto;
@@ -187,7 +188,7 @@
 
 <body>
   <div id="mainLayout">
-    <!-- ① 盤面＋状態 -->
+    <!-- 左：盤面＋状態 -->
     <div id="leftColumn">
       <div id="boardWrapper">
         <div id="boardUsedOverlay" class="overlay-empty">使用ハイヤーカード：なし</div>
@@ -209,7 +210,7 @@
       </div>
     </div>
 
-    <!-- ② フェーズ＋手札＋ターン -->
+    <!-- 中央：フェーズ＋手札＋ターン -->
     <div id="centerColumn">
       <h1>ハイヤーバトル</h1>
 
@@ -243,7 +244,7 @@
       </div>
     </div>
 
-    <!-- ③ 戦況＋リプレイ＋ログ -->
+    <!-- 右：戦況＋リプレイ＋ログ -->
     <div id="rightColumn">
       <div id="battlePanel">
         <div class="panel-title">戦況</div>
