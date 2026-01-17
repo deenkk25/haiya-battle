@@ -50,24 +50,25 @@
     /* ===== ① 盤面（少し小さめにして縦の余白を作る） ===== */
 
     #boardWrapper {
-      width: 100%;
-      max-width: 360px;           /* ★ ここで盤面サイズを少し抑える */
-      margin: 0 auto;
-    }
+  width: 100%;
+  max-width: 280px;   /* ← 360 から 300 に */
+  margin: 0 auto;
+}
 
-    #board {
-      width: 100%;
-      max-width: 360px;
-      height: auto;
-      aspect-ratio: 1 / 1;
-      display: grid;
-      grid-template-columns: repeat(8, 1fr);
-      grid-template-rows: repeat(8, 1fr);
-    }
+#board {
+  width: 100%;
+  max-width: 280px;   /* ← 360 から 300 に */
+  height: auto;
+  aspect-ratio: 1 / 1;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+}
 
-    .cell {
-      font-size: 16px;            /* 盤面縮小に合わせて少し小さく */
-    }
+.cell {
+  font-size: 14px;    /* ← 16 から 14 に少しだけ小さく */
+}
+
 
     /* ===== ② フェーズ・手札・ターンボタン（操作ゾーン） ===== */
 
