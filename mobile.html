@@ -57,14 +57,14 @@
 
     #boardWrapper {
       width: 100%;
-      max-width: 480px;
+      max-width: 420px;          /* 少しだけ縮めて縦方向に余裕を作る */
       margin: 0 auto;
     }
 
     /* 盤面を画面幅いっぱいの正方形にする */
     #board {
       width: 100%;
-      max-width: 480px;
+      max-width: 420px;
       aspect-ratio: 1 / 1;           /* 正方形 */
       display: grid;
       grid-template-columns: repeat(8, 1fr);
@@ -72,7 +72,7 @@
     }
 
     .cell {
-      font-size: 20px;               /* スマホでも見えるサイズに調整 */
+      font-size: 18px;               /* 少しだけ小さくして高さ節約 */
     }
 
     #bottomStatus {
@@ -100,7 +100,7 @@
     }
 
     #centerColumn h1 {
-      font-size: 18px;
+      font-size: 16px;
       text-align: center;
       margin: 0 0 4px;
     }
@@ -113,23 +113,23 @@
     #modeButtons button,
     #systemButtons button,
     #endTurnBtn {
-      font-size: 11px;
-      padding: 4px 6px;
+      font-size: 10px;
+      padding: 3px 5px;
     }
 
     /* 手札を縦に積んで省スペースに */
     #handsWrapper {
       flex-direction: column;
-      gap: 4px;
+      gap: 3px;
     }
 
     .handCol-title {
-      font-size: 10px;
+      font-size: 9px;
     }
 
     .card {
-      font-size: 10px;
-      padding: 4px;
+      font-size: 9px;
+      padding: 3px;
     }
 
     /* スマホではシーン画像を非表示にして、そのぶん高さを盤面・手札に回す */
@@ -137,20 +137,25 @@
       display: none;
     }
 
-    /* ===== 右カラム：戦況／リプレイ／ログ ===== */
+    /* ===== 右カラム：戦況／ログだけ（リプレイはカット） ===== */
 
     /* 下の枠だけスクロールさせる（画面全体はスクロールしない） */
     #rightColumn {
       flex: 1 1 auto;                /* 余った高さを全部使う */
       overflow-y: auto;
-      max-height: 36vh;              /* 画面の下3〜4割くらい */
+      max-height: 30vh;              /* 画面の下3割くらい */
     }
 
     #battlePanel,
-    #replayPanel,
     #logPanel {
-      font-size: 11px;
+      font-size: 10px;
       margin-bottom: 4px;
+    }
+
+    /* 🔴 前ターンのリプレイはスマホでは非表示
+       → これが「新しいHTMLが出てるか」の目印になる */
+    #replayPanel {
+      display: none !important;
     }
 
     /* 説明テキストは高さ節約のため非表示（必要ならここをコメントアウトして戻せる） */
@@ -160,18 +165,9 @@
 
     /* ログが長くなったときは、この中でスクロール */
     #log {
-      max-height: 28vh;
+      max-height: 24vh;
       overflow-y: auto;
     }
-
-    /* どうしてもさらに詰めたい場合：
-       ・前ターンのリプレイを消したいときは、下のコメントアウトを外す
-    */
-    /*
-    #replayPanel {
-      display: none;
-    }
-    */
   </style>
 </head>
 
@@ -233,7 +229,7 @@
       </div>
     </div>
 
-    <!-- 右：戦況＋リプレイ＋ログ -->
+    <!-- 右：戦況＋ログ（リプレイなし） -->
     <div id="rightColumn">
       <div id="battlePanel">
         <div class="panel-title">戦況</div>
@@ -243,6 +239,7 @@
         </div>
       </div>
 
+      <!-- ★ モバイルでは display:none にしている（CSS側で制御） -->
       <div id="replayPanel">
         <div class="panel-title">前ターンのリプレイ</div>
         <div id="replayBody">まだ前ターンの情報はありません。</div>
