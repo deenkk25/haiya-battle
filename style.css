@@ -551,108 +551,45 @@ body[data-phase="move"] #boardWrapper {
   opacity: 0.5;
   font-style: italic;
 }
-/* 900px以下 = スマホレイアウト */
-@media (max-width: 900px) {
-  #mainLayout {
-    grid-template-columns: 1fr;  /* 盤面＋右カラムを縦並びにする */
-    justify-items: center;
-  }
-
-  #boardWrapper {
-    width: 95vw;                 /* 画面幅にフィットさせる */
-    max-width: 500px;
-    height: auto;
-  }
-
-  #rightColumn {
-    width: 95vw;
-    max-width: 500px;
-    margin-top: 8px;
-  }
-
-  .control-button {
-    font-size: 14px;
-    padding: 6px 10px;
-  }
-}
-#systemButtons button {
-  margin-right: 6px;
-  padding: 6px 10px;
-  background: #222;
-  color: #ddd;
-  border: solid 1px #555;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: 0.25s;
-}
-
-#systemButtons button:hover {
-  background: #444;
-}
-#fullscreenBtn {
-  width: auto;
-}
-#systemButtons {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-#bgmBtn,
-#fullscreenBtn {
-  padding: 6px 14px;
-  background: #333;
-  color: white;
-  border-radius: 6px;
-  border: 1px solid #777;
-  margin-left: 6px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-#bgmBtn:hover,
-#fullscreenBtn:hover {
-  background: #444;
-}
-/* ===== ここからスマホ用レイアウト調整 ===== */
+/* ▼▼ スマホ向けレイアウト（900px以下）ここから ▼▼ */
 @media (max-width: 900px) {
 
-  /* 全体をスクロール可能にする */
-  html, body {
+  /* 縦スクロールを許可して、ギュッと縮まるのを防ぐ */
+  html,
+  body {
     height: auto;
     overflow: auto;
   }
 
-  /* メインレイアウトを縦1カラムに */
-  #mainLayout,
-  body.mobile #mainLayout {
+  /* 全体を縦1カラムレイアウトにする */
+  #mainLayout {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 8px;
     padding: 8px;
-    width: 100%;
     height: auto;
-    box-sizing: border-box;
   }
 
-  /* 各カラムは全幅を使う */
+  /* 固定幅 540px / 420px を解除して、画面幅にフィットさせる */
   #leftColumn,
   #centerColumn,
   #rightColumn {
     width: 100%;
+    max-width: 480px;
   }
 
-  /* 盤面を画面幅にフィットさせる */
+  /* 盤面を画面幅にフィットした正方形に */
   #boardWrapper {
+    width: 100%;
+    max-width: 480px;
     margin: 0 auto;
   }
 
   #board {
-    width: 92vw;
-    height: 92vw;          /* 正方形 */
-    max-width: 420px;
-    max-height: 420px;
-    margin: 0 auto;
+    width: 100%;
+    max-width: 480px;
+    aspect-ratio: 1 / 1;              /* 正方形 */
     grid-template-columns: repeat(8, 1fr);
     grid-template-rows: repeat(8, 1fr);
   }
@@ -660,6 +597,7 @@ body[data-phase="move"] #boardWrapper {
   .cell {
     width: auto;
     height: auto;
+    font-size: 24px;                  /* 駒を少し大きめに */
   }
 
   /* 手札は縦積みにして見やすく */
@@ -668,34 +606,19 @@ body[data-phase="move"] #boardWrapper {
     gap: 6px;
   }
 
-  .handCol-title {
-    font-size: 11px;
-  }
-
-  .card {
-    font-size: 11px;
-  }
-
-  /* 戦況・リプレイ・ログは下に縦並び */
-  #battlePanel,
-  #replayPanel,
-  #logPanel {
-    font-size: 11px;
-  }
-
-  /* ログが長くなっても画面全体が潰れないように */
+  /* ログは高さ制限してスクロールに */
   #log {
     max-height: 30vh;
     overflow-y: auto;
   }
 
-  /* 説明文は少し小さめ＆行間広めで読みやすく */
+  /* 説明文は少し小さめ */
   #notesUnderLog {
     font-size: 10px;
     line-height: 1.5;
   }
 
-  /* タイトルやボタンも少しだけコンパクトに */
+  /* ボタン類を少し小さめ＆詰める */
   h1 {
     font-size: 20px;
     text-align: center;
@@ -708,7 +631,7 @@ body[data-phase="move"] #boardWrapper {
     padding: 5px 8px;
   }
 
-  /* シーン画像も横幅に合わせる */
+  /* シーン画像も潰れないように */
   #sceneBox {
     height: auto;
     max-height: 200px;
@@ -719,4 +642,4 @@ body[data-phase="move"] #boardWrapper {
     object-fit: cover;
   }
 }
-/* ===== スマホ用レイアウト調整ここまで ===== */
+/* ▲▲ スマホ向けレイアウトここまで ▲▲ */
