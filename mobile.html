@@ -4,14 +4,14 @@
   <meta charset="UTF-8" />
   <title>ハイヤーバトル（モバイル版）</title>
 
-  <!-- PC版と同じ見た目を使う -->
+  <!-- PC版と同じ見た目 -->
   <link rel="stylesheet" href="style.css">
-  <!-- スマホ向け表示 -->
+  <!-- スマホ向け -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- モバイル専用レイアウト上書き -->
+  <!-- モバイル専用レイアウト -->
   <style>
-    /* ページ全体は縦スクロールOKに */
+    /* ページ全体は縦スクロールOKにする */
     html,
     body {
       margin: 0;
@@ -21,7 +21,7 @@
       overflow-y: auto;
     }
 
-    /* 中央寄せレイアウトを解除して普通の縦並びに */
+    /* PC版の「中央寄せ」レイアウトを解除して普通の縦並びに */
     body {
       display: block;
     }
@@ -34,7 +34,7 @@
       padding: 6px;
       height: auto;
       width: 100%;
-      max-width: 420px;           /* スマホ幅 */
+      max-width: 420px;           /* スマホ想定幅 */
       margin: 0 auto;
       box-sizing: border-box;
     }
@@ -47,55 +47,48 @@
       height: auto;
     }
 
-    /* ===== ① 盤面（少し小さめにして縦の余白を作る） ===== */
+    /* ===== ① 盤面（ちょっと小さめ） ===== */
 
     #boardWrapper {
-  width: 100%;
-  max-width: 140px;   /* ← 360 から 300 に */
-  margin: 0 auto;
-}
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+    }
 
-#board {
-  width: 100%;
-  max-width: 140px;   /* ← 360 から 300 に */
-  height: auto;
-  aspect-ratio: 1 / 1;
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  grid-template-rows: repeat(8, 1fr);
-}
+    /* ここで盤面サイズをガッツリ決める */
+    #board {
+      width: 58vw !important;       /* 画面幅の58% */
+      height: 58vw !important;      /* 正方形 */
+      max-width: 320px;
+      max-height: 320px;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);   /* px固定マスを上書き */
+      grid-template-rows: repeat(8, 1fr);
+    }
 
-.cell {
-  font-size: 14px;    /* ← 16 から 14 に少しだけ小さく */
-}
+    .cell {
+      font-size: 3.3vw !important;  /* 画面幅に対する割合で駒サイズ調整 */
+      min-font-size: 12px;
+    }
 
-
-    /* ===== ② フェーズ・手札・ターンボタン（操作ゾーン） ===== */
+    /* ===== ② 操作ゾーン：フェーズ＋手札＋ターン ===== */
 
     #centerColumn {
       margin-top: 2px;
     }
 
+    /* タイトルは高さを食うのでスマホでは非表示にする */
     #centerColumn h1 {
-      font-size: 16px;
-      text-align: center;
-      margin: 0 0 2px;
+      display: none;
     }
 
-    /* モードボタンは小さくして高さ節約 */
+    /* モード切替ボタンもプレイ中はほぼ触らないので非表示でOK */
     #modeButtons {
-      display: flex;
-      gap: 4px;
-      margin-bottom: 4px;
+      display: none;
     }
 
-    #modeButtons button {
-      flex: 1;
-      font-size: 10px;
-      padding: 3px 4px;
-    }
-
-    /* BGM / 全画面は優先度低いのでスマホでは非表示にして高さ確保 */
+    /* BGM / 全画面ボタンもカット（必要ならここを display:flex に戻せる） */
     #systemButtons {
       display: none;
     }
@@ -105,7 +98,7 @@
       font-size: 11px;
     }
 
-    /* 手札を縦積みにしてコンパクトに */
+    /* 手札は縦積みでコンパクトに */
     #handsWrapper {
       display: flex;
       flex-direction: column;
@@ -130,7 +123,7 @@
       margin-bottom: 2px;
     }
 
-    /* イラストはモバイルでは非表示 */
+    /* イラストはモバイルでは非表示にして高さを稼ぐ */
     #sceneBox {
       display: none;
     }
@@ -180,24 +173,12 @@
       overflow-y: auto;
     }
 
-    /* もっと詰めたい場合、前ターンリプレイを消すならこのコメントアウトを外す
+    /* さらに詰めたいなら前ターンリプレイを消す（必要になったらコメント解除） */
+    /*
     #replayPanel {
       display: none;
     }
     */
-        /* ★ 盤面サイズをスマホ用に強制上書きする部分 ★ */
- #board {
-  width: 60vw !important;
-  height: 60vw !important;
-}
-
-
-    /* ★ マスの中の駒の大きさも盤面縮小に合わせて小さくする ★ */
-    .cell {
-      font-size: 3vw !important;   /* 画面幅に対する割合で文字サイズ */
-      min-font-size: 12px;         /* （この行はなくてもいい） */
-    }
-
   </style>
 </head>
 
@@ -220,7 +201,6 @@
         <button id="modePvpBtn">対人戦（白vs黒）</button>
       </div>
 
-      <!-- BGM / 全画面はスマホでは非表示（CSSで消している） -->
       <div id="systemButtons">
         <button id="bgmBtn">BGM 再生</button>
         <button id="fullscreenBtn">全画面</button>
