@@ -4,41 +4,42 @@
   <meta charset="UTF-8" />
   <title>ハイヤーバトル（モバイル版）</title>
 
-  <!-- PC版と同じCSSをベースにして、ここでモバイル用に上書き -->
+  <!-- PC版と同じCSSを読み込む -->
   <link rel="stylesheet" href="style.css">
+  <!-- スマホ向け表示 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  <!-- モバイル版専用のレイアウト上書き -->
   <style>
-    /* ====== モバイル版（/mobile.html 専用）のレイアウト上書き ====== */
-
-    html, body {
+    html,
+    body {
       margin: 0;
       padding: 0;
       height: 100vh;
-      overflow: hidden;              /* ページ全体はスクロールさせない */
+      overflow: hidden;               /* ページ全体はスクロールさせない */
+      background: #050710;
     }
 
     body {
       display: flex;
       justify-content: center;
       align-items: stretch;
-      background: #050710;
     }
 
-    /* 全体を縦1カラムにして、ほぼ1画面に収める */
+    /* 全体を縦1カラム＋高さ100vhに収める */
     #mainLayout {
-      display: flex !important;      /* grid → flex に上書き */
+      display: flex;                  /* PC版のgridを上書き */
       flex-direction: column;
       gap: 4px;
       padding: 6px;
       height: 100vh;
       box-sizing: border-box;
       width: 100%;
-      max-width: 480px;              /* スマホ幅 */
+      max-width: 480px;              /* iPhoneクラス想定 */
       margin: 0 auto;
     }
 
-    /* 各カラム共通（幅だけ調整） */
+    /* 各カラム共通（幅は画面いっぱい） */
     #leftColumn,
     #centerColumn,
     #rightColumn {
@@ -47,7 +48,9 @@
       box-sizing: border-box;
     }
 
-    /* 盤面エリア：最優先で大きく確保（画面の約 55〜60%） */
+    /* ===== 盤面エリア（いちばん重要な部分） ===== */
+
+    /* 盤面＋ステータス（画面の上側を優先して使う） */
     #leftColumn {
       flex: 0 0 auto;
     }
@@ -58,17 +61,18 @@
       margin: 0 auto;
     }
 
+    /* 盤面を画面幅いっぱいの正方形にする */
     #board {
       width: 100%;
       max-width: 480px;
-      aspect-ratio: 1 / 1;              /* 正方形 */
-      display: grid !important;
-      grid-template-columns: repeat(8, 1fr) !important;
-      grid-template-rows: repeat(8, 1fr) !important;
+      aspect-ratio: 1 / 1;           /* 正方形 */
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
     }
 
     .cell {
-      font-size: 20px;                  /* スマホでも見えるサイズ */
+      font-size: 20px;               /* スマホでも見えるサイズに調整 */
     }
 
     #bottomStatus {
@@ -89,10 +93,10 @@
       padding: 1px 4px;
     }
 
-    /* 中央カラム：手札とボタンをコンパクトにまとめる（画面の約 20〜25%） */
+    /* ===== 中央：モード／手札／ターンボタン ===== */
 
     #centerColumn {
-      flex: 0 0 auto;
+      flex: 0 0 auto;                /* 高さは必要分だけ使う */
     }
 
     #centerColumn h1 {
@@ -113,8 +117,9 @@
       padding: 4px 6px;
     }
 
+    /* 手札を縦に積んで省スペースに */
     #handsWrapper {
-      flex-direction: column;          /* 手札を縦積み */
+      flex-direction: column;
       gap: 4px;
     }
 
@@ -127,17 +132,18 @@
       padding: 4px;
     }
 
-    /* 盤面優先なのでシーン画像はモバイル版では非表示 */
+    /* スマホではシーン画像を非表示にして、そのぶん高さを盤面・手札に回す */
     #sceneBox {
       display: none;
     }
 
-    /* 右カラム：戦況・リプレイ・ログは「下の枠の中でだけ」スクロール */
+    /* ===== 右カラム：戦況／リプレイ／ログ ===== */
 
+    /* 下の枠だけスクロールさせる（画面全体はスクロールしない） */
     #rightColumn {
-      flex: 1 1 auto;                 /* 余った高さを全部使う */
-      overflow-y: auto;               /* この中だけスクロール */
-      max-height: 36vh;               /* 画面下 3〜4割くらい */
+      flex: 1 1 auto;                /* 余った高さを全部使う */
+      overflow-y: auto;
+      max-height: 36vh;              /* 画面の下3〜4割くらい */
     }
 
     #battlePanel,
@@ -147,29 +153,31 @@
       margin-bottom: 4px;
     }
 
-    /* もっと詰めたい場合は、リプレイを消すこともできる */
-    /* 必要になったらコメントアウトを外してね */
+    /* 説明テキストは高さ節約のため非表示（必要ならここをコメントアウトして戻せる） */
+    #notesUnderLog {
+      display: none;
+    }
+
+    /* ログが長くなったときは、この中でスクロール */
+    #log {
+      max-height: 28vh;
+      overflow-y: auto;
+    }
+
+    /* どうしてもさらに詰めたい場合：
+       ・前ターンのリプレイを消したいときは、下のコメントアウトを外す
+    */
     /*
     #replayPanel {
       display: none;
     }
     */
-
-    /* 説明テキストは高さ節約のため非表示 */
-    #notesUnderLog {
-      display: none;
-    }
-
-    #log {
-      max-height: 28vh;
-      overflow-y: auto;
-    }
   </style>
 </head>
 
 <body>
   <div id="mainLayout">
-    <!-- 左：盤面＋状態 -->
+    <!-- 左：盤面＋状態（index.html と同じ構造） -->
     <div id="leftColumn">
       <div id="boardWrapper">
         <div id="boardUsedOverlay" class="overlay-empty">使用ハイヤーカード：なし</div>
@@ -191,7 +199,7 @@
       </div>
     </div>
 
-    <!-- 中央：操作UI -->
+    <!-- 中央：モード・手札・ターンボタン -->
     <div id="centerColumn">
       <h1>ハイヤーバトル</h1>
 
