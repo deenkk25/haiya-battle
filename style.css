@@ -554,7 +554,7 @@ body[data-phase="move"] #boardWrapper {
 /* ▼▼ スマホ向けレイアウト（900px以下）ここから ▼▼ */
 @media (max-width: 900px) {
 
-  /* 縦スクロールを許可して、ギュッと縮まるのを防ぐ */
+  /* 縦スクロールOKにして、ギュッと潰れるのを防ぐ */
   html,
   body {
     height: auto;
@@ -618,7 +618,7 @@ body[data-phase="move"] #boardWrapper {
     line-height: 1.5;
   }
 
-  /* ボタン類を少し小さめ＆詰める */
+  /* ボタン類を少し小さめ＆中央寄せ */
   h1 {
     font-size: 20px;
     text-align: center;
@@ -643,3 +643,66 @@ body[data-phase="move"] #boardWrapper {
   }
 }
 /* ▲▲ スマホ向けレイアウトここまで ▲▲ */
+/* ▼▼ スマホ優先ルール ▼▼ */
+@media (max-width: 900px) {
+
+  html, body {
+    height: auto !important;
+    overflow: auto !important;
+  }
+
+  /* 3カラム → 1カラム縦 */
+  #mainLayout {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  /* カラム幅を画面に合わせる */
+  #leftColumn,
+  #centerColumn,
+  #rightColumn {
+    width: 100% !important;
+    max-width: 480px !important;
+    margin: 0 auto !important;
+  }
+
+  /* 盤面を正方形で画面幅にフィット */
+  #boardWrapper {
+    width: 100% !important;
+    max-width: 480px !important;
+    margin: 0 auto !important;
+  }
+
+  #board {
+    width: 100% !important;
+    aspect-ratio: 1/1 !important;
+    display: grid !important;
+    grid-template-columns: repeat(8, 1fr) !important;
+    grid-template-rows: repeat(8, 1fr) !important;
+  }
+
+  .cell {
+    font-size: 22px !important;
+  }
+
+  /* 手札縦積み */
+  #handsWrapper {
+    flex-direction: column !important;
+    gap: 6px !important;
+  }
+
+  /* ログ潰れ防止 */
+  #log {
+    max-height: 30vh !important;
+    overflow-y: auto !important;
+  }
+
+  /* ボタン圧縮 */
+  button {
+    font-size: 11px !important;
+    padding: 4px 6px !important;
+  }
+}
