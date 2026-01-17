@@ -9,6 +9,7 @@
 
 <body>
   <div id="mainLayout">
+    <!-- 左：盤面＋状態 -->
     <div id="leftColumn">
       <div id="boardWrapper">
         <div id="boardUsedOverlay" class="overlay-empty">使用ハイヤーカード：なし</div>
@@ -30,20 +31,23 @@
       </div>
     </div>
 
+    <!-- 中央：操作UI -->
     <div id="centerColumn">
       <h1>ハイヤーバトル</h1>
 
       <div id="modeButtons">
-        <button id="modeCpuBtn" class="active">CPU戦（白vsCPU黒）</button>
-        <button id="modePvpBtn">対人戦（白vs黒）</button>
-      </div>
+  <button id="modeCpuBtn" class="active">CPU戦（白vsCPU黒）</button>
+  <button id="modePvpBtn">対人戦（白vs黒）</button>
+</div>
 
-      <div id="systemButtons">
-        <button id="bgmBtn">BGM 再生</button>
-        <button id="fullscreenBtn">全画面</button>
-      </div>
+<!-- ここを追加（BGM & 全画面のボタン用コンテナ） -->
+<div id="systemButtons">
+  <button id="bgmBtn">BGM 再生</button>
+  <button id="fullscreenBtn">全画面</button>
+</div>
 
-      <div id="phasePanel" class="panel"></div>
+<div id="phasePanel" class="panel"></div>
+
 
       <div id="handsWrapper">
         <div class="handCol">
@@ -58,11 +62,13 @@
 
       <button id="endTurnBtn">ターン終了</button>
 
+      <!-- ✅ ターン終了ボタンの下にイラスト -->
       <div id="sceneBox" aria-label="scene">
         <img id="sceneImage" src="battle.png" alt="scene" />
       </div>
     </div>
 
+    <!-- 右：戦況＋リプレイ＋ログ＋説明 -->
     <div id="rightColumn">
       <div id="battlePanel">
         <div class="panel-title">戦況</div>
@@ -81,6 +87,7 @@
         <div id="logPanelTitle">ログ</div>
         <div id="log"></div>
 
+        <!-- ✅ 説明をログの下へ -->
         <div id="notesUnderLog">
           ・手札があるターンは必ずハイヤーカードを1枚使用（先行1ターン目を除く）<br>
           ・ハイヤー使用＋駒の移動 または ターン終了ボタンでターン終了<br>
