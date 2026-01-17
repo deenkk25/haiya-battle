@@ -4,161 +4,166 @@
   <meta charset="UTF-8" />
   <title>ハイヤーバトル（モバイル版）</title>
 
-  <!-- PC版と同じCSSを読みつつ、下の<style>でスマホだけ上書き -->
+  <!-- PC版と同じCSSをベースにして、ここでモバイル用に上書き -->
   <link rel="stylesheet" href="style.css">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-    /* ▼ スマホ（縦持ち想定：幅900px以下）専用レイアウト ▼ */
-    @media (max-width: 900px) {
+    /* ====== モバイル版（/mobile.html 専用）のレイアウト上書き ====== */
 
-      html,
-      body {
-        margin: 0;
-        padding: 0;
-        height: 100vh;
-        overflow: hidden;               /* 画面外にだらだらスクロールさせない */
-      }
-
-      /* 全体を縦一列に並べる */
-      #mainLayout {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        padding: 6px;
-        height: 100vh;
-        box-sizing: border-box;
-        align-items: center;
-      }
-
-      /* 各カラムは画面幅いっぱい（最大480px） */
-      #leftColumn,
-      #centerColumn,
-      #rightColumn {
-        width: 100%;
-        max-width: 480px;
-        margin: 0 auto;
-      }
-
-      /* 盤面のラッパーをスマホ幅にフィット */
-      #leftColumn {
-        flex: 0 0 auto;
-      }
-
-      #boardWrapper {
-        width: 100%;
-        max-width: 480px;
-        margin: 0 auto;
-      }
-
-      /* 盤面を正方形にして、マスは自動調整 */
-      #board {
-        width: 100%;
-        max-width: 480px;
-        height: auto;
-        aspect-ratio: 1 / 1;                     /* 正方形 */
-        display: grid;
-        grid-template-columns: repeat(8, 1fr);   /* px固定を上書き */
-        grid-template-rows: repeat(8, 1fr);
-      }
-
-      .cell {
-        width: 100%;
-        height: 100%;
-        font-size: 22px;                         /* 盤面優先で少しだけ小さめ */
-      }
-
-      /* 盤面下のステータスをコンパクトに */
-      #bottomStatus {
-        margin-top: 4px;
-        gap: 4px;
-      }
-
-      #effectsBar {
-        font-size: 10px;
-      }
-
-      .hayer-title {
-        font-size: 9px;
-      }
-
-      .hayer-pill {
-        font-size: 9px;
-        padding: 1px 4px;
-      }
-
-      /* 中央カラム：手札＆ボタン部分も少し圧縮 */
-      #centerColumn {
-        flex: 0 0 auto;
-      }
-
-      h1 {
-        font-size: 20px;
-        text-align: center;
-        margin: 0 0 4px;
-      }
-
-      #modeButtons button,
-      #systemButtons button,
-      #endTurnBtn {
-        font-size: 11px;
-        padding: 4px 6px;
-      }
-
-      #handsWrapper {
-        flex-direction: column;   /* 手札を縦積み */
-        gap: 4px;
-      }
-
-      .handCol-title {
-        font-size: 10px;
-      }
-
-      .card {
-        font-size: 10px;
-        padding: 4px;
-      }
-
-      /* 盤面優先なのでシーン画像はスマホでは非表示 */
-      #sceneBox {
-        display: none;
-      }
-
-      /* 下段：戦況・リプレイ・ログは「まとめて1枠でスクロール」 */
-      #rightColumn {
-        flex: 1 1 auto;
-        max-height: 40vh;        /* 画面の下側40%くらい */
-        overflow-y: auto;
-      }
-
-      #battlePanel,
-      #replayPanel,
-      #logPanel {
-        font-size: 11px;
-        margin-bottom: 4px;
-      }
-
-      /* さらにスクロール量を減らしたいので、リプレイは一旦オフでもOKならここを有効化
-         display: none; にしたいときはコメントアウト外してね
-      */
-      /*
-      #replayPanel {
-        display: none;
-      }
-      */
-
-      /* 説明テキストは高さ節約のため非表示（必要ならここをコメントアウト） */
-      #notesUnderLog {
-        display: none;
-      }
-
-      /* ログ自体は右カラム内でスクロール */
-      #log {
-        max-height: 26vh;
-        overflow-y: auto;
-      }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow: hidden;              /* ページ全体はスクロールさせない */
     }
-    /* ▲ スマホ専用ここまで ▲ */
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      background: #050710;
+    }
+
+    /* 全体を縦1カラムにして、ほぼ1画面に収める */
+    #mainLayout {
+      display: flex !important;      /* grid → flex に上書き */
+      flex-direction: column;
+      gap: 4px;
+      padding: 6px;
+      height: 100vh;
+      box-sizing: border-box;
+      width: 100%;
+      max-width: 480px;              /* スマホ幅 */
+      margin: 0 auto;
+    }
+
+    /* 各カラム共通（幅だけ調整） */
+    #leftColumn,
+    #centerColumn,
+    #rightColumn {
+      width: 100%;
+      padding: 4px;
+      box-sizing: border-box;
+    }
+
+    /* 盤面エリア：最優先で大きく確保（画面の約 55〜60%） */
+    #leftColumn {
+      flex: 0 0 auto;
+    }
+
+    #boardWrapper {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    #board {
+      width: 100%;
+      max-width: 480px;
+      aspect-ratio: 1 / 1;              /* 正方形 */
+      display: grid !important;
+      grid-template-columns: repeat(8, 1fr) !important;
+      grid-template-rows: repeat(8, 1fr) !important;
+    }
+
+    .cell {
+      font-size: 20px;                  /* スマホでも見えるサイズ */
+    }
+
+    #bottomStatus {
+      margin-top: 4px;
+      gap: 3px;
+    }
+
+    #effectsBar {
+      font-size: 10px;
+    }
+
+    .hayer-title {
+      font-size: 9px;
+    }
+
+    .hayer-pill {
+      font-size: 8px;
+      padding: 1px 4px;
+    }
+
+    /* 中央カラム：手札とボタンをコンパクトにまとめる（画面の約 20〜25%） */
+
+    #centerColumn {
+      flex: 0 0 auto;
+    }
+
+    #centerColumn h1 {
+      font-size: 18px;
+      text-align: center;
+      margin: 0 0 4px;
+    }
+
+    #modeButtons,
+    #systemButtons {
+      gap: 4px;
+    }
+
+    #modeButtons button,
+    #systemButtons button,
+    #endTurnBtn {
+      font-size: 11px;
+      padding: 4px 6px;
+    }
+
+    #handsWrapper {
+      flex-direction: column;          /* 手札を縦積み */
+      gap: 4px;
+    }
+
+    .handCol-title {
+      font-size: 10px;
+    }
+
+    .card {
+      font-size: 10px;
+      padding: 4px;
+    }
+
+    /* 盤面優先なのでシーン画像はモバイル版では非表示 */
+    #sceneBox {
+      display: none;
+    }
+
+    /* 右カラム：戦況・リプレイ・ログは「下の枠の中でだけ」スクロール */
+
+    #rightColumn {
+      flex: 1 1 auto;                 /* 余った高さを全部使う */
+      overflow-y: auto;               /* この中だけスクロール */
+      max-height: 36vh;               /* 画面下 3〜4割くらい */
+    }
+
+    #battlePanel,
+    #replayPanel,
+    #logPanel {
+      font-size: 11px;
+      margin-bottom: 4px;
+    }
+
+    /* もっと詰めたい場合は、リプレイを消すこともできる */
+    /* 必要になったらコメントアウトを外してね */
+    /*
+    #replayPanel {
+      display: none;
+    }
+    */
+
+    /* 説明テキストは高さ節約のため非表示 */
+    #notesUnderLog {
+      display: none;
+    }
+
+    #log {
+      max-height: 28vh;
+      overflow-y: auto;
+    }
   </style>
 </head>
 
@@ -220,7 +225,7 @@
       </div>
     </div>
 
-    <!-- 右：戦況＋リプレイ＋ログ＋説明 -->
+    <!-- 右：戦況＋リプレイ＋ログ -->
     <div id="rightColumn">
       <div id="battlePanel">
         <div class="panel-title">戦況</div>
