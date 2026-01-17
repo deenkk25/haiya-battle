@@ -443,106 +443,40 @@ body {
   line-height: 1.5;
 }
 
-/* ===============================
-   スマホ用（900px以下）
-   =============================== */
-
+/* ▼スマホ（900px以下）だけ▼ */
 @media (max-width: 900px) {
 
-  /* 画面全体は 1画面 (100vh) 前提で、ページ全体はスクロールさせない */
-  html,
-  body {
-    height: 100vh;
-    overflow: hidden;
-  }
-
-  body {
-    align-items: stretch;
-  }
-
-  /* 全体は縦並びにして、ほぼ1画面で完結させる */
   #mainLayout {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    padding: 4px;
-    height: 100vh;
-    max-width: 480px;
   }
 
   #leftColumn,
   #centerColumn,
   #rightColumn {
     width: 100%;
-    max-width: 480px;
-    padding: 4px;
   }
 
-  /* 左＋中央の高さを詰めて、ゲーム操作に集中できるように */
-
-  #leftColumn {
-    padding-bottom: 2px;
+  #sceneBox {
+    display: none;
   }
 
-  #centerColumn {
-    padding-top: 2px;
+  #replayPanel {
+    display: none;
   }
 
-  /* 盤面を画面幅いっぱいの正方形に */
+  #notesUnderLog {
+    display: none;
+  }
+
   #boardWrapper {
-    width: 100%;
-    max-width: 480px;
+    max-width: 450px;
     margin: 0 auto;
   }
 
   #board {
     width: 100%;
-    max-width: 480px;
     aspect-ratio: 1 / 1;
   }
-
-  .cell {
-    font-size: 20px;
-  }
-
-  /* 手札とボタン周りをコンパクトに */
-  #handsWrapper {
-    flex-direction: column;
-    gap: 3px;
-  }
-
-  .handCol-title {
-    font-size: 9px;
-  }
-
-  .card {
-    font-size: 9px;
-  }
-
-  #centerColumn h1 {
-    font-size: 18px;
-  }
-
-  #modeButtons button,
-  #systemButtons button,
-  #endTurnBtn {
-    font-size: 10px;
-    padding: 3px 4px;
-  }
-
-  /* シーン画像・注意書きはスマホでは非表示にして高さ節約 */
-  #sceneBox,
-  #notesUnderLog {
-    display: none;
-  }
-
-  /* 右カラム（戦況／リプレイ／ログ）は残りの高さでスクロール領域にする */
-  #rightColumn {
-    flex: 1 1 auto;
-    overflow-y: auto;
-  }
-
-  #log {
-    max-height: 40vh;
-  }
 }
+/* ▲ここまで▲ */
